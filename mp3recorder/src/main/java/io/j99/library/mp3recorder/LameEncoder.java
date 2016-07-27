@@ -25,8 +25,7 @@ package io.j99.library.mp3recorder;
 /**
  * LAME interface class
  *
- * @author henjue<henjue@gmail.com>
- * @time 16/5/4 下午2:16
+ * @author henjue henjue@gmail.com
  */
 public class LameEncoder {
     static {
@@ -53,10 +52,10 @@ public class LameEncoder {
      * @param outChannel    number of channels in input stream.
      * @param outSamplerate output sample rate in Hz.
      * @param outBitrate    brate compression ratio in KHz.
-     * @param quality       quality=0..9. 0=best (very slow). 9=worst.<br />
-     *                      recommended:<br />
-     *                      2 near-best quality, not too slow<br />
-     *                      5 good quality, fast<br />
+     * @param quality       quality=0..9. 0=best (very slow). 9=worst.<br >
+     *                      recommended:<br >
+     *                      2 near-best quality, not too slow<br >
+     *                      5 good quality, fast<br >
      *                      7 ok quality, really fast
      */
     public native static void init(int inSamplerate, int outChannel,
@@ -70,10 +69,10 @@ public class LameEncoder {
      * @param samples  number of samples per channel.
      * @param mp3buf   result encoded MP3 stream. You must specified
      *                 "7200 + (1.25 * buffer_l.length)" length array.
-     * @return number of bytes output in mp3buf. Can be 0.<br />
-     * -1: mp3buf was too small<br />
-     * -2: malloc() problem<br />
-     * -3: lame_init_params() not called<br />
+     * @return number of bytes output in mp3buf. Can be 0.<br >
+     * -1: mp3buf was too small<br >
+     * -2: malloc() problem<br >
+     * -3: lame_init_params() not called<br >
      * -4: psycho acoustic problems
      */
     public native static int encode(short[] buffer_l, short[] buffer_r,

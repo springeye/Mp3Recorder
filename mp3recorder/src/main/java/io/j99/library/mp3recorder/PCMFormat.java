@@ -3,8 +3,7 @@ package io.j99.library.mp3recorder;
 import android.media.AudioFormat;
 
 /**
- * @author henjue<henjue@gmail.com>
- * @time 16/5/4 下午2:16
+ * @author henjue henjue@gmail.com
  */
 public enum PCMFormat {
     PCM_8BIT(1, AudioFormat.ENCODING_PCM_8BIT),

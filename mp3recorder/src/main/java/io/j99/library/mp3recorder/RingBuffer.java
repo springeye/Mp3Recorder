@@ -3,8 +3,7 @@ package io.j99.library.mp3recorder;
 import android.util.Log;
 
 /**
- * @author henjue<henjue@gmail.com>
- * @time 16/5/4 下午2:16
+ * @author henjue henjue@gmail.com
  */
 public class RingBuffer {
     private byte[] buffer;
@@ -18,7 +17,7 @@ public class RingBuffer {
     /**
      * Initialize a ring buffer given number of bytes
      *
-     * @param size
+     * @param size ringsize
      */
     public RingBuffer(int size) {
         this.size = size;
@@ -55,9 +54,9 @@ public class RingBuffer {
     /**
      * Read a number of bytes from ring buffer
      *
-     * @param buffer
-     * @param bytes
-     * @return
+     * @param buffer buffer
+     * @param bytes  bytes
+     * @return length
      */
     public int read(byte[] buffer, final int bytes) {
         int remaining;
@@ -76,9 +75,9 @@ public class RingBuffer {
     /**
      * Write a number of bytes to ring buffer;
      *
-     * @param buffer
-     * @param bytes
-     * @return
+     * @param buffer buffer
+     * @param bytes  bytes
+     * @return write length
      */
     public int write(byte[] buffer, final int bytes) {
         int remaining;

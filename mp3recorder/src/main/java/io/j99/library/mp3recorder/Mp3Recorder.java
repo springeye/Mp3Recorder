@@ -12,8 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
- * @author henjue<henjue@gmail.com>
- * @time 16/5/4 下午2:16
+ * @author henjue henjue@gmail.com
  */
 public class Mp3Recorder {
 
@@ -64,6 +63,8 @@ public class Mp3Recorder {
     /**
      * Default constructor. Setup recorder with default sampling rate 1 channel,
      * 16 bits pcm
+     *
+     * @param file output file
      */
     public Mp3Recorder(File file) {
         this(file, DEFAULT_SAMPLING_RATE, AudioFormat.CHANNEL_IN_MONO,
@@ -74,7 +75,7 @@ public class Mp3Recorder {
      * Start recording. Create an encoding thread. Start record from this
      * thread.
      *
-     * @throws IOException
+     * @throws IOException IOException
      */
     public void startRecording() throws IOException {
         if (isRecording) return;
@@ -128,7 +129,7 @@ public class Mp3Recorder {
     }
 
     /**
-     * @throws IOException
+     * @throws IOException IOException
      */
     public void stopRecording() throws IOException {
         Log.d(TAG, "stop recording");

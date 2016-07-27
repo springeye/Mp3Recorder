@@ -66,9 +66,9 @@ public class DataEncodeThread extends Thread implements AudioRecord.OnRecordPosi
     /**
      * Constructor
      *
-     * @param ringBuffer
-     * @param os
-     * @param bufferSize
+     * @param ringBuffer ringBuffer
+     * @param os         FileOutputStream
+     * @param bufferSize bufferSize
      */
     public DataEncodeThread(RingBuffer ringBuffer, FileOutputStream os,
                             int bufferSize) {
@@ -90,7 +90,7 @@ public class DataEncodeThread extends Thread implements AudioRecord.OnRecordPosi
     /**
      * Return the handler attach to this thread
      *
-     * @return
+     * @return Handler
      */
     public Handler getHandler() {
         try {
