@@ -5,13 +5,9 @@
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-version = '1.0.0';
-
-def siteUrl = 'https://github.com/henjue/Mp3Recorder'
-def gitUrl = 'https://github.com/henjue/Mp3Recorder.git'
-
 // 根节点添加
-group = "org.henjue.library"
+group = LIBRARY_GROUP
+version = LIBRARY_VERSION;
 
 // 根节点添加
 install {
@@ -19,27 +15,27 @@ install {
         // This generates POM.xml with proper parameters
         pom {
             project {
-                description 'a recording library, lame based real time mp3 coding'
+                description LIBRARY_DESCRIPTION
                 packaging 'aar'
-                name 'Mp3Recorder'
-                url siteUrl
+                name LIBRARY_NAME
+                url SITE_URL
                 licenses {
                     license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        name POM_LICENSES_NAME
+                        url POM_LICENSES_URL
                     }
                 }
                 developers {
                     developer {
-                        id 'henjue'
-                        name 'henjue'
-                        email 'henjue@gmail.com'
+                        id DEVELOPER_ID
+                        name DEVELOPER_NAME
+                        email DEVELOPER_MAIL
                     }
                 }
                 scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
+                    connection GIT_URL
+                    developerConnection GIT_URL
+                    url SITE_URL
                 }
             }
         }
@@ -101,15 +97,15 @@ artifacts {
 
 
 bintray {
-    user = JCENTER_USERNAME
-    key = JCENTER_APIKEY
+    user = hasProperty('JCENTER_USERNAME')?JCENTER_USERNAME:System.getenv('JCENTER_USERNAME')
+    key = hasProperty('JCENTER_USERNAME')?JCENTER_APIKEY:System.getenv('JCENTER_APIKEY')
     configurations = ['archives']
     pkg {
         repo = "maven"
-        name = "Mp3Recorder"                // project name in jcenter
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
+        name = LIBRARY_NAME                // project name in jcenter
+        websiteUrl = SITE_URL
+        vcsUrl = GIT_URL
+        licenses = [BINTRAY_LICENSES]
         publish = true
     }
 }
