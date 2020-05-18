@@ -2,7 +2,7 @@
 see [lame](http://lame.sourceforge.net/)
 
 ## Latest Version: 
-[![Download](https://api.bintray.com/packages/henjue/maven/Mp3Recorder/images/download.svg) ](https://bintray.com/henjue/maven/Mp3Recorder/_latestVersion)
+[![](https://jitpack.io/v/henjue/Mp3Recorder.svg)](https://jitpack.io/#henjue/Mp3Recorder)
 # Use On Gradle
 root build.gradle
 ```gradle
