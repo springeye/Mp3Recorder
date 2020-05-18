@@ -4,8 +4,20 @@ see [lame](http://lame.sourceforge.net/)
 ## Latest Version: 
 [![Download](https://api.bintray.com/packages/henjue/maven/Mp3Recorder/images/download.svg) ](https://bintray.com/henjue/maven/Mp3Recorder/_latestVersion)
 # Use On Gradle
+root build.gradle
 ```gradle
-compile "io.j99.library:mp3recorder:$lastest_version"
+	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+```
+#on build.gradle
+```gradle
+	dependencies {
+	        implementation 'com.github.henjue:Mp3Recorder:Tag'
+	}
 ```
 ## Java Code Use
 ```java

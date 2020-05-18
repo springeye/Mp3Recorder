@@ -4,14 +4,8 @@ machine:
 dependencies:
   pre:
     - echo y | android update sdk --no-ui --all --filter "tools"
-    - echo y | android update sdk --no-ui --all --filter "android-24,build-tools-24.0.0,extra-android-support,extra-google-m2repository,extra-android-m2repository"
-    - echo "ndk.dir=$ANDROID_NDK" > local.properties
+    - echo y | android update sdk --no-ui --all --filter "android-29,build-tools-29.0.3,extra-android-m2repository"
 
 test:
   override:
     - ./gradlew :mp3recorder:assembleDebug
-deployment:
-  release:
-    tag: /v[0-9]+(\.[0-9]+)*/
-    commands:
-      - ./gradlew bintrayUpload
