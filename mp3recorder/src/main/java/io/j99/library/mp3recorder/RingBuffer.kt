@@ -1,29 +1,14 @@
-package io.j99.library.mp3recorder;
+package io.j99.library.mp3recorder
 
-import android.util.Log;
+import android.util.Log
 
 /**
  * @author henjue henjue@gmail.com
  */
-public class RingBuffer {
-    private byte[] buffer;
-
-    private int size;
-
-    private int rp;
-
-    private int wp;
-
-    /**
-     * Initialize a ring buffer given number of bytes
-     *
-     * @param size ringsize
-     */
-    public RingBuffer(int size) {
-        this.size = size;
-        buffer = new byte[size];
-        wp = rp = 0;
-    }
+class RingBuffer(private val size: Int) {
+    private val buffer: ByteArray
+    private var rp: Int
+    private var wp: Int
 
     /**
      * Check number of bytes left
@@ -31,24 +16,24 @@ public class RingBuffer {
      * @param writeCheck
      * @return
      */
-    private int checkSpace(boolean writeCheck) {
-        int s;
-        if (writeCheck) {
+    private fun checkSpace(writeCheck: Boolean): Int {
+        val s: Int
+        s = if (writeCheck) {
             if (wp > rp) {
-                s = rp - wp + size - 1;
+                rp - wp + size - 1
             } else if (wp < rp) {
-                s = rp - wp - 1;
-            } else s = size - 1;
+                rp - wp - 1
+            } else size - 1
         } else {
             if (wp > rp) {
-                s = wp - rp;
+                wp - rp
             } else if (wp < rp) {
-                s = wp - rp + size;
+                wp - rp + size
             } else {
-                s = 0;
+                0
             }
         }
-        return s;
+        return s
     }
 
     /**
@@ -58,18 +43,18 @@ public class RingBuffer {
      * @param bytes  bytes
      * @return length
      */
-    public int read(byte[] buffer, final int bytes) {
-        int remaining;
-        if ((remaining = checkSpace(false)) == 0) {
-            return 0;
+    fun read(buffer: ByteArray, bytes: Int): Int {
+        var remaining: Int
+        if (checkSpace(false).also { remaining = it } == 0) {
+            return 0
         }
-        final int bytesread = bytes > remaining ? remaining : bytes;
+        val bytesread = if (bytes > remaining) remaining else bytes
         // copy from ring buffer to buffer
-        for (int i = 0; i < bytesread; ++i) {
-            buffer[i] = this.buffer[rp++];
-            if (rp == size) rp = 0;
+        for (i in 0 until bytesread) {
+            buffer[i] = this.buffer[rp++]
+            if (rp == size) rp = 0
         }
-        return bytesread;
+        return bytesread
     }
 
     /**
@@ -79,17 +64,28 @@ public class RingBuffer {
      * @param bytes  bytes
      * @return write length
      */
-    public int write(byte[] buffer, final int bytes) {
-        int remaining;
-        if ((remaining = checkSpace(true)) == 0) {
-            Log.e(RingBuffer.class.getSimpleName(), "Buffer overrun. Data will not be written");
-            return 0;
+    fun write(buffer: ByteArray, bytes: Int): Int {
+        var remaining: Int
+        if (checkSpace(true).also { remaining = it } == 0) {
+            Log.e(RingBuffer::class.java.simpleName, "Buffer overrun. Data will not be written")
+            return 0
         }
-        final int byteswrite = bytes > remaining ? remaining : bytes;
-        for (int i = 0; i < byteswrite; ++i) {
-            this.buffer[wp++] = buffer[i];
-            if (wp == size) wp = 0;
+        val byteswrite = if (bytes > remaining) remaining else bytes
+        for (i in 0 until byteswrite) {
+            this.buffer[wp++] = buffer[i]
+            if (wp == size) wp = 0
         }
-        return byteswrite;
+        return byteswrite
+    }
+
+    /**
+     * Initialize a ring buffer given number of bytes
+     *
+     * @param size ringsize
+     */
+    init {
+        buffer = ByteArray(size)
+        rp = 0
+        wp = rp
     }
 }

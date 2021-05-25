@@ -1,64 +1,31 @@
-package io.j99.library.mp3recorder;
+package io.j99.library.mp3recorder
 
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaRecorder;
-import android.os.Environment;
-import android.os.Message;
-import android.util.Log;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.MediaRecorder
+import android.os.Message
+import android.util.Log
+import io.j99.library.mp3recorder.LameEncoder.init
+import io.j99.library.mp3recorder.Mp3Recorder
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
 
 /**
  * @author henjue henjue@gmail.com
  */
-public class Mp3Recorder {
-
-    private static final String TAG = Mp3Recorder.class.getSimpleName();
-
-
-    private static final int DEFAULT_SAMPLING_RATE = 22050;
-
-    private static final int FRAME_COUNT = 160;
-
-    /* Encoded bit rate. MP3 file will be encoded with bit rate 32kbps */
-    private static final int BIT_RATE = 32;
-
-    public AudioRecord getAudioRecord() {
-        return audioRecord;
-    }
-
-    private AudioRecord audioRecord = null;
-
-    private int bufferSize;
-
-    private File mp3File;
-
-    private RingBuffer ringBuffer;
-
-    private byte[] buffer;
-
-    private FileOutputStream os = null;
-
-    private DataEncodeThread encodeThread;
-
-    private int samplingRate;
-
-    private int channelConfig;
-
-    private PCMFormat audioFormat;
-
-    private boolean isRecording = false;
-
-    public Mp3Recorder(File file, int samplingRate, int channelConfig,
-                       PCMFormat audioFormat) {
-        this.mp3File = file;
-        this.samplingRate = samplingRate;
-        this.channelConfig = channelConfig;
-        this.audioFormat = audioFormat;
-    }
+class Mp3Recorder constructor(
+        val os: OutputStream,
+        val samplingRate: Int = DEFAULT_SAMPLING_RATE,
+        val channelConfig: Int = AudioFormat.CHANNEL_IN_MONO,
+        val audioFormat: PCMFormat =PCMFormat.PCM_16BIT) {
+    var audioRecord: AudioRecord? = null
+    private var bufferSize = 0
+    private var ringBuffer: RingBuffer? = null
+    private var buffer: ByteArray?=null
+    private var encodeThread: DataEncodeThread? = null
+    private var isRecording = false
 
     /**
      * Default constructor. Setup recorder with default sampling rate 1 channel,
@@ -66,9 +33,9 @@ public class Mp3Recorder {
      *
      * @param file output file
      */
-    public Mp3Recorder(File file) {
-        this(file, DEFAULT_SAMPLING_RATE, AudioFormat.CHANNEL_IN_MONO,
-                PCMFormat.PCM_16BIT);
+    constructor(file: File, samplingRate: Int = DEFAULT_SAMPLING_RATE, channelConfig: Int = AudioFormat.CHANNEL_IN_MONO,
+                audioFormat: PCMFormat =
+                        PCMFormat.PCM_16BIT) : this(FileOutputStream(file), samplingRate, channelConfig, audioFormat) {
     }
 
     /**
@@ -77,105 +44,103 @@ public class Mp3Recorder {
      *
      * @throws IOException IOException
      */
-    public void startRecording() throws IOException {
-        if (isRecording) return;
-        Log.d(TAG, "Start recording");
-        Log.d(TAG, "BufferSize = " + bufferSize);
+    @Throws(IOException::class)
+    fun startRecording() {
+        if (isRecording) return
+        Log.d(TAG, "Start recording")
+        Log.d(TAG, "BufferSize = $bufferSize")
         // Initialize audioRecord if it's null.
         if (audioRecord == null) {
-            initAudioRecorder();
+            initAudioRecorder()
         }
-        audioRecord.startRecording();
-
-        new Thread() {
-
-            @Override
-            public void run() {
-                isRecording = true;
+        audioRecord!!.startRecording()
+        object : Thread() {
+            override fun run() {
+                isRecording = true
                 while (isRecording) {
-                    int bytes = audioRecord.read(buffer, 0, bufferSize);
+                    val bytes = buffer?.let { audioRecord?.read(it, 0, bufferSize) }?:0
                     if (bytes > 0) {
-                        ringBuffer.write(buffer, bytes);
+                        buffer?.let { ringBuffer?.write(it, bytes) }
                     }
                 }
 
                 // release and finalize audioRecord
                 try {
-                    audioRecord.stop();
-                    audioRecord.release();
-                    audioRecord = null;
+                    audioRecord!!.stop()
+                    audioRecord!!.release()
+                    audioRecord = null
 
                     // stop the encoding thread and try to wait
                     // until the thread finishes its job
-                    Message msg = Message.obtain(encodeThread.getHandler(),
-                            DataEncodeThread.PROCESS_STOP);
-                    msg.sendToTarget();
-
-                    encodeThread.join();
-                } catch (InterruptedException e) {
-                    Log.d(TAG, "Faile to join encode thread");
+                    val msg = Message.obtain(encodeThread!!.getHandler(),
+                            DataEncodeThread.PROCESS_STOP)
+                    msg.sendToTarget()
+                    encodeThread!!.join()
+                } catch (e: InterruptedException) {
+                    Log.d(TAG, "Faile to join encode thread")
                 } finally {
                     if (os != null) {
                         try {
-                            os.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                            os.close()
+                        } catch (e: IOException) {
+                            e.printStackTrace()
                         }
                     }
                 }
-
             }
-        }.start();
+        }.start()
     }
 
     /**
      * @throws IOException IOException
      */
-    public void stopRecording() throws IOException {
-        Log.d(TAG, "stop recording");
-        isRecording = false;
+    @Throws(IOException::class)
+    fun stopRecording() {
+        Log.d(TAG, "stop recording")
+        isRecording = false
     }
 
     /**
      * Initialize audio recorder
      */
-    private void initAudioRecorder() throws IOException {
-        int bytesPerFrame = audioFormat.getBytesPerFrame();
+    @Throws(IOException::class)
+    private fun initAudioRecorder() {
+        val bytesPerFrame = audioFormat.bytesPerFrame
         /* Get number of samples. Calculate the buffer size (round up to the
            factor of given frame size) */
-        int frameSize = AudioRecord.getMinBufferSize(samplingRate,
-                channelConfig, audioFormat.getAudioFormat()) / bytesPerFrame;
+        var frameSize = AudioRecord.getMinBufferSize(samplingRate,
+                channelConfig, audioFormat.audioFormat) / bytesPerFrame
         if (frameSize % FRAME_COUNT != 0) {
-            frameSize = frameSize + (FRAME_COUNT - frameSize % FRAME_COUNT);
-            Log.d(TAG, "Frame size: " + frameSize);
+            frameSize = frameSize + (FRAME_COUNT - frameSize % FRAME_COUNT)
+            Log.d(TAG, "Frame size: $frameSize")
         }
+        bufferSize = frameSize * bytesPerFrame
 
-        bufferSize = frameSize * bytesPerFrame;
-
-		/* Setup audio recorder */
-        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                samplingRate, channelConfig, audioFormat.getAudioFormat(),
-                bufferSize);
+        /* Setup audio recorder */audioRecord = AudioRecord(MediaRecorder.AudioSource.MIC,
+                samplingRate, channelConfig, audioFormat.audioFormat,
+                bufferSize)
 
         // Setup RingBuffer. Currently is 10 times size of hardware buffer
         // Initialize buffer to hold data
-        ringBuffer = new RingBuffer(10 * bufferSize);
-        buffer = new byte[bufferSize];
-
-        // Initialize lame buffer
-        // mp3 sampling rate is the same as the recorded pcm sampling rate
-        // The bit rate is 32kbps
-        LameEncoder.init(samplingRate, 1, samplingRate, BIT_RATE);
-        if (mp3File.isDirectory()) {
-            throw new IOException("mp3 file must to file!");
-        }
-        os = new FileOutputStream(mp3File);
+        ringBuffer = RingBuffer(10 * bufferSize)
+        buffer = ByteArray(bufferSize)
+        init(samplingRate, 1, samplingRate, BIT_RATE)
 
         // Create and run thread used to encode data
         // The thread will
-        encodeThread = new DataEncodeThread(ringBuffer, os, bufferSize);
-        encodeThread.start();
-        audioRecord.setRecordPositionUpdateListener(encodeThread, encodeThread.getHandler());
-        audioRecord.setPositionNotificationPeriod(FRAME_COUNT);
+        encodeThread = DataEncodeThread(ringBuffer!!, os!!, bufferSize)
+        encodeThread!!.start()
+        audioRecord!!.setRecordPositionUpdateListener(encodeThread, encodeThread!!.getHandler())
+        audioRecord!!.positionNotificationPeriod = FRAME_COUNT
     }
+
+    companion object {
+        private val TAG = Mp3Recorder::class.java.simpleName
+        private const val DEFAULT_SAMPLING_RATE = 22050
+        private const val FRAME_COUNT = 160
+
+        /* Encoded bit rate. MP3 file will be encoded with bit rate 32kbps */
+        private const val BIT_RATE = 32
+    }
+
 }

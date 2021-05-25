@@ -1,35 +1,11 @@
-package io.j99.library.mp3recorder;
+package io.j99.library.mp3recorder
 
-import android.media.AudioFormat;
+import android.media.AudioFormat
 
 /**
  * @author henjue henjue@gmail.com
  */
-public enum PCMFormat {
-    PCM_8BIT(1, AudioFormat.ENCODING_PCM_8BIT),
-    PCM_16BIT(2, AudioFormat.ENCODING_PCM_16BIT);
+enum class PCMFormat(var bytesPerFrame: Int, var audioFormat: Int) {
+    PCM_8BIT(1, AudioFormat.ENCODING_PCM_8BIT), PCM_16BIT(2, AudioFormat.ENCODING_PCM_16BIT);
 
-    private int bytesPerFrame;
-    private int audioFormat;
-
-    PCMFormat(int bytesPerFrame, int audioFormat) {
-        this.bytesPerFrame = bytesPerFrame;
-        this.audioFormat = audioFormat;
-    }
-
-    public int getBytesPerFrame() {
-        return bytesPerFrame;
-    }
-
-    public void setBytesPerFrame(int bytesPerFrame) {
-        this.bytesPerFrame = bytesPerFrame;
-    }
-
-    public int getAudioFormat() {
-        return audioFormat;
-    }
-
-    public void setAudioFormat(int audioFormat) {
-        this.audioFormat = audioFormat;
-    }
 }
