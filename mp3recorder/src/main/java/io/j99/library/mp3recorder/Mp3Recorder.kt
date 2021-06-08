@@ -26,7 +26,10 @@ class Mp3Recorder constructor(
     private var buffer: ByteArray?=null
     private var encodeThread: DataEncodeThread? = null
     private var isRecording = false
-
+    interface OnProcessListener{
+        fun onProcess(process:Long)
+    }
+    var listener:OnProcessListener?=null
     /**
      * Default constructor. Setup recorder with default sampling rate 1 channel,
      * 16 bits pcm
