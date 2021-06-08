@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-
+apply plugin: 'maven-publish'
 group = 'io.j99.library.mp3recorder'
 android {
     compileSdkVersion 30
@@ -49,4 +49,32 @@ dependencies {
 }
 repositories {
     mavenCentral()
+}
+def getVersionName = { ->
+    return "1.0.3" // Replace with version Name
+}
+
+def getArtificatId = { ->
+    return "mp3recorder" // Replace with library name ID
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/henjue/Mp3Recorder")
+            credentials {
+                username = System.getenv("GITHUB_USERNAME")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    publications {
+        bar(MavenPublication) {
+            groupId 'io.j99.library' // Replace with group ID
+            artifactId getArtificatId()
+            version getVersionName()
+            artifact("$buildDir/outputs/aar/${getArtificatId()}-release.aar")
+        }
+    }
 }
