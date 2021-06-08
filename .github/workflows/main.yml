@@ -1,11 +1,8 @@
 name: Android CI
 on:
   push:
-    branch:
-      - master
-      - develop
-    tags:
-      - v.*
+    branch: [master,develop]
+    tags: [v.*]
 jobs:
   build:
     runs-on: ubuntu-latest
