@@ -1,6 +1,8 @@
 name: Android CI
 on:
   push:
+    branches:
+      - master
     tags: [v.*]
   pull_request:
     tags: [v.*]
@@ -27,5 +29,5 @@ jobs:
     - name: Publish package
       run: gradle publish
       env:
-        GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_USERNAME: ${{ secrets.USERNAME }}
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
