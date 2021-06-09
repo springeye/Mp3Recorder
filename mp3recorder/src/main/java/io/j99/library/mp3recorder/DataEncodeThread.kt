@@ -95,7 +95,7 @@ class DataEncodeThread(private val ringBuffer: RingBuffer, private val os: Outpu
             try {
                 os.write(mp3Buffer, 0, encodedSize)
             } catch (e: IOException) {
-                Log.e(TAG, "Unable to write to file")
+                Log.e(TAG, "Unable to write to file",e)
             }
             return bytes
         }
@@ -112,7 +112,7 @@ class DataEncodeThread(private val ringBuffer: RingBuffer, private val os: Outpu
                 os.write(mp3Buffer, 0, flushResult)
             } catch (e: IOException) {
                 // TODO: Handle error when flush
-                Log.e(TAG, "Lame flush error")
+                Log.e(TAG, "Lame flush error",e)
             }
         }
     }

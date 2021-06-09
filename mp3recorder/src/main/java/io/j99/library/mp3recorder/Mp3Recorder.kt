@@ -3,6 +3,8 @@ package io.j99.library.mp3recorder
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.util.Log
 import io.j99.library.mp3recorder.LameEncoder.init
@@ -27,7 +29,9 @@ class Mp3Recorder constructor(
     private var encodeThread: DataEncodeThread? = null
     private var isRecording = false
     interface OnProcessListener{
-        fun onProcess(process:Long)
+        fun onRecordStart()
+        fun onRecordCompleted();
+        fun onError(e:Throwable);
     }
     var listener:OnProcessListener?=null
     /**
@@ -40,6 +44,7 @@ class Mp3Recorder constructor(
                 audioFormat: PCMFormat =
                         PCMFormat.PCM_16BIT) : this(FileOutputStream(file), samplingRate, channelConfig, audioFormat) {
     }
+    var handler:Handler = Handler(Looper.getMainLooper())
 
     /**
      * Start recording. Create an encoding thread. Start record from this
@@ -56,10 +61,13 @@ class Mp3Recorder constructor(
         if (audioRecord == null) {
             initAudioRecorder()
         }
-        audioRecord!!.startRecording()
+        audioRecord?.startRecording()
         object : Thread() {
             override fun run() {
                 isRecording = true
+                handler.post {
+                    listener?.onRecordStart()
+                }
                 while (isRecording) {
                     val bytes = buffer?.let { audioRecord?.read(it, 0, bufferSize) }?:0
                     if (bytes > 0) {
@@ -69,26 +77,31 @@ class Mp3Recorder constructor(
 
                 // release and finalize audioRecord
                 try {
-                    audioRecord!!.stop()
-                    audioRecord!!.release()
+                    audioRecord?.stop()
+                    audioRecord?.release()
                     audioRecord = null
 
                     // stop the encoding thread and try to wait
                     // until the thread finishes its job
-                    val msg = Message.obtain(encodeThread!!.getHandler(),
+                    val msg = Message.obtain(encodeThread?.getHandler(),
                             DataEncodeThread.PROCESS_STOP)
                     msg.sendToTarget()
-                    encodeThread!!.join()
+                    encodeThread?.join()
+                    handler.post {
+                        listener?.onRecordCompleted()
+                    }
                 } catch (e: InterruptedException) {
                     Log.d(TAG, "Faile to join encode thread")
-                } finally {
-                    if (os != null) {
-                        try {
-                            os.close()
-                        } catch (e: IOException) {
-                            e.printStackTrace()
-                        }
+                    handler.post{
+                        listener?.onError(e)
                     }
+                } finally {
+                    try {
+                        os.close()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+
                 }
             }
         }.start()
@@ -114,7 +127,7 @@ class Mp3Recorder constructor(
         var frameSize = AudioRecord.getMinBufferSize(samplingRate,
                 channelConfig, audioFormat.audioFormat) / bytesPerFrame
         if (frameSize % FRAME_COUNT != 0) {
-            frameSize = frameSize + (FRAME_COUNT - frameSize % FRAME_COUNT)
+            frameSize += (FRAME_COUNT - frameSize % FRAME_COUNT)
             Log.d(TAG, "Frame size: $frameSize")
         }
         bufferSize = frameSize * bytesPerFrame
@@ -132,9 +145,9 @@ class Mp3Recorder constructor(
         // Create and run thread used to encode data
         // The thread will
         encodeThread = DataEncodeThread(ringBuffer!!, os!!, bufferSize)
-        encodeThread!!.start()
-        audioRecord!!.setRecordPositionUpdateListener(encodeThread, encodeThread!!.getHandler())
-        audioRecord!!.positionNotificationPeriod = FRAME_COUNT
+        encodeThread?.start()
+        audioRecord?.setRecordPositionUpdateListener(encodeThread, encodeThread?.getHandler())
+        audioRecord?.positionNotificationPeriod = FRAME_COUNT
     }
 
     companion object {
