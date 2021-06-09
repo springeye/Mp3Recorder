@@ -51,7 +51,7 @@ repositories {
     mavenCentral()
 }
 def getVersionName = { ->
-    return "1.0.3" // Replace with version Name
+    return "1.0.4" // Replace with version Name
 }
 
 def getArtificatId = { ->
