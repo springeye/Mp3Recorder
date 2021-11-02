@@ -15,7 +15,7 @@ root build.gradle
 		}
 	}
 ```
-#on build.gradle
+# on build.gradle
 ```gradle
 	dependencies {
 	        implementation 'com.github.henjue:Mp3Recorder:Tag'
