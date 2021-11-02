@@ -71,7 +71,7 @@ publishing {
     }
     publications {
         bar(MavenPublication) {
-            groupId 'io.j99.library' // Replace with group ID
+            groupId 'com.github.henjue' // Replace with group ID
             artifactId getArtificatId()
             version getVersionName()
             artifact("$buildDir/outputs/aar/${getArtificatId()}-release.aar")
