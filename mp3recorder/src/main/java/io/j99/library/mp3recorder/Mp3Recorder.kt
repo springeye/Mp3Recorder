@@ -28,6 +28,9 @@ class Mp3Recorder constructor(
     private var buffer: ByteArray?=null
     private var encodeThread: DataEncodeThread? = null
     private var isRecording = false
+    fun isRecording(): Boolean {
+        return this.isRecording;
+    }
     interface OnProcessListener{
         fun onRecordStart()
         fun onRecordCompleted();
