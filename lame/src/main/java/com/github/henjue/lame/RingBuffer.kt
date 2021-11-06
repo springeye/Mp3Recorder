@@ -6,7 +6,7 @@ import android.util.Log
  * @author henjue henjue@gmail.com
  */
 class RingBuffer(private val size: Int) {
-    private val buffer: ByteArray
+    private val buffer: ByteArray = ByteArray(size)
     private var rp: Int
     private var wp: Int
 
@@ -17,8 +17,7 @@ class RingBuffer(private val size: Int) {
      * @return
      */
     private fun checkSpace(writeCheck: Boolean): Int {
-        val s: Int
-        s = if (writeCheck) {
+        val s: Int = if (writeCheck) {
             if (wp > rp) {
                 rp - wp + size - 1
             } else if (wp < rp) {
@@ -84,7 +83,6 @@ class RingBuffer(private val size: Int) {
      * @param size ringsize
      */
     init {
-        buffer = ByteArray(size)
         rp = 0
         wp = rp
     }

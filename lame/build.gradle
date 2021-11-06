@@ -52,11 +52,11 @@ repositories {
     mavenCentral()
 }
 def getVersionName = { ->
-    return "1.0.4" // Replace with version Name
+    return "1.0.5" // Replace with version Name
 }
 
 def getArtificatId = { ->
-    return "lame" // Replace with library name ID
+    return "android_lame" // Replace with library name ID
 }
 def getGroup = {->
     return  'com.github.henjue'
@@ -65,7 +65,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/henjue/Mp3Recorder")
+            url = uri("https://github.com/henjue/android_lame")
             credentials {
                 username = System.getenv("GITHUB_USERNAME")
                 password = System.getenv("GITHUB_TOKEN")

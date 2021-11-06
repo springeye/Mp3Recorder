@@ -19,24 +19,21 @@ import java.io.OutputStream
  */
 class Mp3Recorder constructor(
     val os: OutputStream,
-    val samplingRate: Int = DEFAULT_SAMPLING_RATE,
-    val channelConfig: Int = AudioFormat.CHANNEL_IN_MONO,
-    val audioFormat: PCMFormat = PCMFormat.PCM_16BIT
+    private val samplingRate: Int = DEFAULT_SAMPLING_RATE,
+    private val channelConfig: Int = AudioFormat.CHANNEL_IN_MONO,
+    private val audioFormat: PCMFormat = PCMFormat.PCM_16BIT
 ) {
     var audioRecord: AudioRecord? = null
     private var bufferSize = 0
     private var ringBuffer: RingBuffer? = null
     private var buffer: ByteArray? = null
     private var encodeThread: DataEncodeThread? = null
-    private var isRecording = false
-    fun isRecording(): Boolean {
-        return this.isRecording;
-    }
+    var isRecording = false
 
     interface OnProcessListener {
         fun onRecordStart()
-        fun onRecordCompleted();
-        fun onError(e: Throwable);
+        fun onRecordCompleted()
+        fun onError(e: Throwable)
     }
 
     var listener: OnProcessListener? = null
@@ -53,8 +50,7 @@ class Mp3Recorder constructor(
         channelConfig: Int = AudioFormat.CHANNEL_IN_MONO,
         audioFormat: PCMFormat =
             PCMFormat.PCM_16BIT
-    ) : this(FileOutputStream(file), samplingRate, channelConfig, audioFormat) {
-    }
+    ) : this(FileOutputStream(file), samplingRate, channelConfig, audioFormat)
 
     var handler: Handler = Handler(Looper.getMainLooper())
 
@@ -65,6 +61,7 @@ class Mp3Recorder constructor(
      * @throws IOException IOException
      */
     @Throws(IOException::class)
+    @RequiresPermission(android.Manifest.permission.RECORD_AUDIO)
     fun startRecording() {
         if (isRecording) return
         Log.d(TAG, "Start recording")
@@ -163,7 +160,7 @@ class Mp3Recorder constructor(
 
         // Create and run thread used to encode data
         // The thread will
-        encodeThread = DataEncodeThread(ringBuffer!!, os!!, bufferSize)
+        encodeThread = DataEncodeThread(ringBuffer!!, os, bufferSize)
         encodeThread?.start()
         audioRecord?.setRecordPositionUpdateListener(encodeThread, encodeThread?.getHandler())
         audioRecord?.positionNotificationPeriod = FRAME_COUNT
