@@ -59,12 +59,12 @@ extern FLOAT pow20[Q_MAX + Q_MAX2 + 1];
 extern FLOAT ipow20[Q_MAX];
 
 typedef struct calc_noise_result_t {
-    FLOAT   over_noise;      /* sum of quantization noise > masking */
-    FLOAT   tot_noise;       /* sum of all quantization noise */
-    FLOAT   max_noise;       /* max quantization noise */
-    int     over_count;      /* number of quantization noise > masking */
-    int     over_SSD;        /* SSD-like cost of distorted bands */
-    int     bits;
+    FLOAT over_noise;      /* sum of quantization noise > masking */
+    FLOAT tot_noise;       /* sum of all quantization noise */
+    FLOAT max_noise;       /* max quantization noise */
+    int over_count;      /* number of quantization noise > masking */
+    int over_SSD;        /* SSD-like cost of distorted bands */
+    int bits;
 } calc_noise_result;
 
 
@@ -73,55 +73,54 @@ typedef struct calc_noise_result_t {
 * computed noise values
 */
 typedef struct calc_noise_data_t {
-    int     global_gain;
-    int     sfb_count1;
-    int     step[39];
-    FLOAT   noise[39];
-    FLOAT   noise_log[39];
+    int global_gain;
+    int sfb_count1;
+    int step[39];
+    FLOAT noise[39];
+    FLOAT noise_log[39];
 } calc_noise_data;
 
 
-int     on_pe(lame_internal_flags * gfc, const FLOAT pe[2][2],
-              int targ_bits[2], int mean_bits, int gr, int cbr);
+int on_pe(lame_internal_flags *gfc, const FLOAT pe[2][2],
+          int targ_bits[2], int mean_bits, int gr, int cbr);
 
-void    reduce_side(int targ_bits[2], FLOAT ms_ener_ratio, int mean_bits, int max_bits);
-
-
-void    iteration_init(lame_internal_flags * gfc);
+void reduce_side(int targ_bits[2], FLOAT ms_ener_ratio, int mean_bits, int max_bits);
 
 
-int     calc_xmin(lame_internal_flags const *gfc,
-                  III_psy_ratio const *const ratio, gr_info * const cod_info, FLOAT * l3_xmin);
-
-int     calc_noise(const gr_info * const cod_info,
-                   const FLOAT * l3_xmin,
-                   FLOAT * distort, calc_noise_result * const res, calc_noise_data * prev_noise);
-
-void    set_frame_pinfo(lame_internal_flags * gfc, const III_psy_ratio ratio[2][2]);
+void iteration_init(lame_internal_flags *gfc);
 
 
+int calc_xmin(lame_internal_flags const *gfc,
+              III_psy_ratio const *const ratio, gr_info *const cod_info, FLOAT *l3_xmin);
+
+int calc_noise(const gr_info *const cod_info,
+               const FLOAT *l3_xmin,
+               FLOAT *distort, calc_noise_result *const res, calc_noise_data *prev_noise);
+
+void set_frame_pinfo(lame_internal_flags *gfc, const III_psy_ratio ratio[2][2]);
 
 
 /* takehiro.c */
 
-int     count_bits(lame_internal_flags const *const gfc, const FLOAT * const xr,
-                   gr_info * const cod_info, calc_noise_data * prev_noise);
-int     noquant_count_bits(lame_internal_flags const *const gfc,
-                           gr_info * const cod_info, calc_noise_data * prev_noise);
+int count_bits(lame_internal_flags const *const gfc, const FLOAT *const xr,
+               gr_info *const cod_info, calc_noise_data *prev_noise);
+
+int noquant_count_bits(lame_internal_flags const *const gfc,
+                       gr_info *const cod_info, calc_noise_data *prev_noise);
 
 
-void    best_huffman_divide(const lame_internal_flags * const gfc, gr_info * const cod_info);
+void best_huffman_divide(const lame_internal_flags *const gfc, gr_info *const cod_info);
 
-void    best_scalefac_store(const lame_internal_flags * gfc, const int gr, const int ch,
-                            III_side_info_t * const l3_side);
+void best_scalefac_store(const lame_internal_flags *gfc, const int gr, const int ch,
+                         III_side_info_t *const l3_side);
 
-int     scale_bitcount(const lame_internal_flags * gfc, gr_info * cod_info);
+int scale_bitcount(const lame_internal_flags *gfc, gr_info *cod_info);
 
-void    huffman_init(lame_internal_flags * const gfc);
+void huffman_init(lame_internal_flags *const gfc);
 
-void    init_xrpow_core_init(lame_internal_flags * const gfc);
+void init_xrpow_core_init(lame_internal_flags *const gfc);
 
-FLOAT   athAdjust(FLOAT a, FLOAT x, FLOAT athFloor, float ATHfixpoint);
+FLOAT athAdjust(FLOAT a, FLOAT x, FLOAT athFloor, float ATHfixpoint);
 
 #define LARGE_BITS 100000
 

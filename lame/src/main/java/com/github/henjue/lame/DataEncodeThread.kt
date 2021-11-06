@@ -14,8 +14,10 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.concurrent.CountDownLatch
 
-class DataEncodeThread(private val ringBuffer: RingBuffer, private val os: OutputStream,
-                       private val bufferSize: Int) : Thread(), AudioRecord.OnRecordPositionUpdateListener {
+class DataEncodeThread(
+    private val ringBuffer: RingBuffer, private val os: OutputStream,
+    private val bufferSize: Int
+) : Thread(), AudioRecord.OnRecordPositionUpdateListener {
     private var handler: StopHandler? = null
     private val buffer: ByteArray = ByteArray(bufferSize)
     private val mp3Buffer: ByteArray = ByteArray((7200 + buffer.size * 2 * 1.25).toInt())
@@ -92,7 +94,7 @@ class DataEncodeThread(private val ringBuffer: RingBuffer, private val os: Outpu
             try {
                 os.write(mp3Buffer, 0, encodedSize)
             } catch (e: IOException) {
-                Log.e(TAG, "Unable to write to file",e)
+                Log.e(TAG, "Unable to write to file", e)
             }
             return bytes
         }
@@ -109,7 +111,7 @@ class DataEncodeThread(private val ringBuffer: RingBuffer, private val os: Outpu
                 os.write(mp3Buffer, 0, flushResult)
             } catch (e: IOException) {
                 // TODO: Handle error when flush
-                Log.e(TAG, "Lame flush error",e)
+                Log.e(TAG, "Lame flush error", e)
             }
         }
     }

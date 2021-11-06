@@ -1,9 +1,10 @@
+#include <jni.h>
 #include "lame-3.100_libmp3lame/lame.h"
-#include "com_github_henjue_lame_LameEncoder.h"
 
 static lame_global_flags *glf = NULL;
 
-JNIEXPORT void JNICALL Java_com_github_henjue_lame_LameEncoder_init(
+JNIEXPORT void JNICALL
+Java_com_github_henjue_lame_LameEncoder_init(
         JNIEnv *env, jclass cls, jint inSamplerate, jint outChannel,
         jint outSamplerate, jint outBitrate, jint quality) {
     if (glf != NULL) {
@@ -19,7 +20,8 @@ JNIEXPORT void JNICALL Java_com_github_henjue_lame_LameEncoder_init(
     lame_init_params(glf);
 }
 
-JNIEXPORT jint JNICALL Java_com_github_henjue_lame_LameEncoder_encode(
+JNIEXPORT jint JNICALL
+Java_com_github_henjue_lame_LameEncoder_encode(
         JNIEnv *env, jclass cls, jshortArray buffer_l, jshortArray buffer_r,
         jint samples, jbyteArray mp3buf) {
     jshort *j_buffer_l = (*env)->GetShortArrayElements(env, buffer_l, NULL);
@@ -39,7 +41,8 @@ JNIEXPORT jint JNICALL Java_com_github_henjue_lame_LameEncoder_encode(
     return result;
 }
 
-JNIEXPORT jint JNICALL Java_com_github_henjue_lame_LameEncoder_flush(
+JNIEXPORT jint JNICALL
+Java_com_github_henjue_lame_LameEncoder_flush(
         JNIEnv *env, jclass cls, jbyteArray mp3buf) {
     const jsize mp3buf_size = (*env)->GetArrayLength(env, mp3buf);
     jbyte *j_mp3buf = (*env)->GetByteArrayElements(env, mp3buf, NULL);
@@ -51,7 +54,8 @@ JNIEXPORT jint JNICALL Java_com_github_henjue_lame_LameEncoder_flush(
     return result;
 }
 
-JNIEXPORT void JNICALL Java_com_github_henjue_lame_LameEncoder_close(
+JNIEXPORT void JNICALL
+Java_com_github_henjue_lame_LameEncoder_close(
         JNIEnv *env, jclass cls) {
     lame_close(glf);
     glf = NULL;

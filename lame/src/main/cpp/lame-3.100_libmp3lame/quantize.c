@@ -37,20 +37,18 @@
 #include "bitstream.h"
 #include "vbrquantize.h"
 #include "quantize.h"
+
 #ifdef HAVE_XMMINTRIN_H
 //#include "vector/lame_intrin.h"
 #endif
 
 
-
-
 /* convert from L/R <-> Mid/Side */
 static void
-ms_convert(III_side_info_t * l3_side, int gr)
-{
-    int     i;
+ms_convert(III_side_info_t *l3_side, int gr) {
+    int i;
     for (i = 0; i < 576; ++i) {
-        FLOAT   l, r;
+        FLOAT l, r;
         l = l3_side->tt[gr][0].xr[i];
         r = l3_side->tt[gr][1].xr[i];
         l3_side->tt[gr][0].xr[i] = (l + r) * (FLOAT) (SQRT2 * 0.5);
@@ -70,10 +68,9 @@ ms_convert(III_side_info_t * l3_side, int gr)
  ************************************************************************/
 
 static void
-init_xrpow_core_c(gr_info * const cod_info, FLOAT xrpow[576], int upper, FLOAT * sum)
-{
-    int     i;
-    FLOAT   tmp;
+init_xrpow_core_c(gr_info *const cod_info, FLOAT xrpow[576], int upper, FLOAT *sum) {
+    int i;
+    FLOAT tmp;
     *sum = 0;
     for (i = 0; i <= upper; ++i) {
         tmp = fabs(cod_info->xr[i]);
@@ -86,12 +83,8 @@ init_xrpow_core_c(gr_info * const cod_info, FLOAT xrpow[576], int upper, FLOAT *
 }
 
 
-
-
-
 void
-init_xrpow_core_init(lame_internal_flags * const gfc)
-{
+init_xrpow_core_init(lame_internal_flags *const gfc) {
     gfc->init_xrpow_core = init_xrpow_core_c;
 
 #if defined(HAVE_XMMINTRIN_H)
@@ -106,12 +99,10 @@ init_xrpow_core_init(lame_internal_flags * const gfc)
 }
 
 
-
 static int
-init_xrpow(lame_internal_flags * gfc, gr_info * const cod_info, FLOAT xrpow[576])
-{
-    FLOAT   sum = 0;
-    int     i;
+init_xrpow(lame_internal_flags *gfc, gr_info *const cod_info, FLOAT xrpow[576]) {
+    FLOAT sum = 0;
+    int i;
     int const upper = cod_info->max_nonzero_coeff;
 
     assert(xrpow != NULL);
@@ -129,7 +120,7 @@ init_xrpow(lame_internal_flags * gfc, gr_info * const cod_info, FLOAT xrpow[576]
     /*  return 1 if we have something to quantize, else 0
      */
     if (sum > (FLOAT) 1E-20) {
-        int     j = 0;
+        int j = 0;
         if (gfc->sv_qnt.substep_shaping & 2)
             j = 1;
 
@@ -144,9 +135,6 @@ init_xrpow(lame_internal_flags * gfc, gr_info * const cod_info, FLOAT xrpow[576]
 }
 
 
-
-
-
 /*
 Gabriel Bouvigne feb/apr 2003
 Analog silence detection in partitionned sfb21
@@ -157,19 +145,18 @@ coeffs which are below ath. It stops on the first
 coeff higher than ath.
 */
 static void
-psfb21_analogsilence(lame_internal_flags const *gfc, gr_info * const cod_info)
-{
+psfb21_analogsilence(lame_internal_flags const *gfc, gr_info *const cod_info) {
     ATH_t const *const ATH = gfc->ATH;
-    FLOAT  *const xr = cod_info->xr;
+    FLOAT *const xr = cod_info->xr;
 
     if (cod_info->block_type != SHORT_TYPE) { /* NORM, START or STOP type, but not SHORT blocks */
-        int     gsfb;
-        int     stop = 0;
+        int gsfb;
+        int stop = 0;
         for (gsfb = PSFB21 - 1; gsfb >= 0 && !stop; gsfb--) {
             int const start = gfc->scalefac_band.psfb21[gsfb];
             int const end = gfc->scalefac_band.psfb21[gsfb + 1];
-            int     j;
-            FLOAT   ath21;
+            int j;
+            FLOAT ath21;
             ath21 = athAdjust(ATH->adjust_factor, ATH->psfb21[gsfb], ATH->floor, 0);
 
             if (gfc->sv_qnt.longfact[21] > 1e-12f)
@@ -184,22 +171,22 @@ psfb21_analogsilence(lame_internal_flags const *gfc, gr_info * const cod_info)
                 }
             }
         }
-    }
-    else {
+    } else {
         /*note: short blocks coeffs are reordered */
-        int     block;
+        int block;
         for (block = 0; block < 3; block++) {
 
-            int     gsfb;
-            int     stop = 0;
+            int gsfb;
+            int stop = 0;
             for (gsfb = PSFB12 - 1; gsfb >= 0 && !stop; gsfb--) {
                 int const start = gfc->scalefac_band.s[12] * 3 +
-                    (gfc->scalefac_band.s[13] - gfc->scalefac_band.s[12]) * block +
-                    (gfc->scalefac_band.psfb12[gsfb] - gfc->scalefac_band.psfb12[0]);
+                                  (gfc->scalefac_band.s[13] - gfc->scalefac_band.s[12]) * block +
+                                  (gfc->scalefac_band.psfb12[gsfb] - gfc->scalefac_band.psfb12[0]);
                 int const end =
-                    start + (gfc->scalefac_band.psfb12[gsfb + 1] - gfc->scalefac_band.psfb12[gsfb]);
-                int     j;
-                FLOAT   ath12;
+                        start +
+                        (gfc->scalefac_band.psfb12[gsfb + 1] - gfc->scalefac_band.psfb12[gsfb]);
+                int j;
+                FLOAT ath12;
                 ath12 = athAdjust(ATH->adjust_factor, ATH->psfb12[gsfb], ATH->floor, 0);
 
                 if (gfc->sv_qnt.shortfact[12] > 1e-12f)
@@ -220,14 +207,10 @@ psfb21_analogsilence(lame_internal_flags const *gfc, gr_info * const cod_info)
 }
 
 
-
-
-
 static void
-init_outer_loop(lame_internal_flags const *gfc, gr_info * const cod_info)
-{
+init_outer_loop(lame_internal_flags const *gfc, gr_info *const cod_info) {
     SessionConfig_t const *const cfg = &gfc->cfg;
-    int     sfb, j;
+    int sfb, j;
     /*  initialize fresh cod_info
      */
     cod_info->part2_3_length = 0;
@@ -250,26 +233,25 @@ init_outer_loop(lame_internal_flags const *gfc, gr_info * const cod_info)
     cod_info->count1table_select = 0;
     cod_info->part2_length = 0;
     if (cfg->samplerate_out <= 8000) {
-      cod_info->sfb_lmax = 17;
-      cod_info->sfb_smin = 9;
-      cod_info->psy_lmax = 17;
-    }
-    else {
-      cod_info->sfb_lmax = SBPSY_l;
-      cod_info->sfb_smin = SBPSY_s;
-      cod_info->psy_lmax = gfc->sv_qnt.sfb21_extra ? SBMAX_l : SBPSY_l;
+        cod_info->sfb_lmax = 17;
+        cod_info->sfb_smin = 9;
+        cod_info->psy_lmax = 17;
+    } else {
+        cod_info->sfb_lmax = SBPSY_l;
+        cod_info->sfb_smin = SBPSY_s;
+        cod_info->psy_lmax = gfc->sv_qnt.sfb21_extra ? SBMAX_l : SBPSY_l;
     }
     cod_info->psymax = cod_info->psy_lmax;
     cod_info->sfbmax = cod_info->sfb_lmax;
     cod_info->sfbdivide = 11;
     for (sfb = 0; sfb < SBMAX_l; sfb++) {
         cod_info->width[sfb]
-            = gfc->scalefac_band.l[sfb + 1] - gfc->scalefac_band.l[sfb];
+                = gfc->scalefac_band.l[sfb + 1] - gfc->scalefac_band.l[sfb];
         cod_info->window[sfb] = 3; /* which is always 0. */
     }
     if (cod_info->block_type == SHORT_TYPE) {
-        FLOAT   ixwork[576];
-        FLOAT  *ix;
+        FLOAT ixwork[576];
+        FLOAT *ix;
 
         cod_info->sfb_smin = 0;
         cod_info->sfb_lmax = 0;
@@ -283,14 +265,13 @@ init_outer_loop(lame_internal_flags const *gfc, gr_info * const cod_info)
         }
         if (cfg->samplerate_out <= 8000) {
             cod_info->psymax
-                = cod_info->sfb_lmax
-                + 3 * (9 - cod_info->sfb_smin);
+                    = cod_info->sfb_lmax
+                      + 3 * (9 - cod_info->sfb_smin);
             cod_info->sfbmax = cod_info->sfb_lmax + 3 * (9 - cod_info->sfb_smin);
-        }
-        else {
+        } else {
             cod_info->psymax
-                = cod_info->sfb_lmax
-                + 3 * ((gfc->sv_qnt.sfb21_extra ? SBMAX_s : SBPSY_s) - cod_info->sfb_smin);
+                    = cod_info->sfb_lmax
+                      + 3 * ((gfc->sv_qnt.sfb21_extra ? SBMAX_s : SBPSY_s) - cod_info->sfb_smin);
             cod_info->sfbmax = cod_info->sfb_lmax + 3 * (SBPSY_s - cod_info->sfb_smin);
         }
         cod_info->sfbdivide = cod_info->sfbmax - 18;
@@ -308,7 +289,7 @@ init_outer_loop(lame_internal_flags const *gfc, gr_info * const cod_info)
         for (sfb = cod_info->sfb_smin; sfb < SBMAX_s; sfb++) {
             int const start = gfc->scalefac_band.s[sfb];
             int const end = gfc->scalefac_band.s[sfb + 1];
-            int     window, l;
+            int window, l;
             for (window = 0; window < 3; window++) {
                 for (l = start; l < end; l++) {
                     *ix++ = ixwork[3 * l + window];
@@ -319,7 +300,7 @@ init_outer_loop(lame_internal_flags const *gfc, gr_info * const cod_info)
         j = cod_info->sfb_lmax;
         for (sfb = cod_info->sfb_smin; sfb < SBMAX_s; sfb++) {
             cod_info->width[j] = cod_info->width[j + 1] = cod_info->width[j + 2]
-                = gfc->scalefac_band.s[sfb + 1] - gfc->scalefac_band.s[sfb];
+                    = gfc->scalefac_band.s[sfb + 1] - gfc->scalefac_band.s[sfb];
             cod_info->window[j] = 0;
             cod_info->window[j + 1] = 1;
             cod_info->window[j + 2] = 2;
@@ -346,7 +327,6 @@ init_outer_loop(lame_internal_flags const *gfc, gr_info * const cod_info)
 }
 
 
-
 /************************************************************************
  *
  *      bin_search_StepSize()
@@ -365,12 +345,11 @@ typedef enum {
 } binsearchDirection_t;
 
 static int
-bin_search_StepSize(lame_internal_flags * const gfc, gr_info * const cod_info,
-                    int desired_rate, const int ch, const FLOAT xrpow[576])
-{
-    int     nBits;
-    int     CurrentStep = gfc->sv_qnt.CurrentStep[ch];
-    int     flag_GoneOver = 0;
+bin_search_StepSize(lame_internal_flags *const gfc, gr_info *const cod_info,
+                    int desired_rate, const int ch, const FLOAT xrpow[576]) {
+    int nBits;
+    int CurrentStep = gfc->sv_qnt.CurrentStep[ch];
+    int flag_GoneOver = 0;
     int const start = gfc->sv_qnt.OldValue[ch];
     binsearchDirection_t Direction = BINSEARCH_NONE;
     cod_info->global_gain = start;
@@ -378,7 +357,7 @@ bin_search_StepSize(lame_internal_flags * const gfc, gr_info * const cod_info,
 
     assert(CurrentStep);
     for (;;) {
-        int     step;
+        int step;
         nBits = count_bits(gfc, xrpow, cod_info, 0);
 
         if (CurrentStep == 1 || nBits == desired_rate)
@@ -393,8 +372,7 @@ bin_search_StepSize(lame_internal_flags * const gfc, gr_info * const cod_info,
                 CurrentStep /= 2;
             Direction = BINSEARCH_UP;
             step = CurrentStep;
-        }
-        else {
+        } else {
             /* decrease Quantize_StepSize */
             if (Direction == BINSEARCH_UP)
                 flag_GoneOver = 1;
@@ -429,8 +407,6 @@ bin_search_StepSize(lame_internal_flags * const gfc, gr_info * const cod_info,
 }
 
 
-
-
 /************************************************************************
  *
  *      trancate_smallspectrums()
@@ -441,8 +417,7 @@ bin_search_StepSize(lame_internal_flags * const gfc, gr_info * const cod_info,
  *
  ************************************************************************/
 static int
-floatcompare(const void *v1, const void *v2)
-{
+floatcompare(const void *v1, const void *v2) {
     const FLOAT *const a = v1, *const b = v2;
     if (*a > *b)
         return 1;
@@ -453,10 +428,9 @@ floatcompare(const void *v1, const void *v2)
 
 static void
 trancate_smallspectrums(lame_internal_flags const *gfc,
-                        gr_info * const gi, const FLOAT * const l3_xmin, FLOAT * const work)
-{
-    int     sfb, j, width;
-    FLOAT   distort[SFBMAX];
+                        gr_info *const gi, const FLOAT *const l3_xmin, FLOAT *const work) {
+    int sfb, j, width;
+    FLOAT distort[SFBMAX];
     calc_noise_result dummy;
 
     if ((!(gfc->sv_qnt.substep_shaping & 4) && gi->block_type == SHORT_TYPE)
@@ -464,7 +438,7 @@ trancate_smallspectrums(lame_internal_flags const *gfc,
         return;
     (void) calc_noise(gi, l3_xmin, distort, &dummy, 0);
     for (j = 0; j < 576; j++) {
-        FLOAT   xr = 0.0;
+        FLOAT xr = 0.0;
         if (gi->l3_enc[j] != 0)
             xr = fabs(gi->xr[j]);
         work[j] = xr;
@@ -475,8 +449,8 @@ trancate_smallspectrums(lame_internal_flags const *gfc,
     if (gi->block_type == SHORT_TYPE)
         sfb = 6;
     do {
-        FLOAT   allowedNoise, trancateThreshold;
-        int     nsame, start;
+        FLOAT allowedNoise, trancateThreshold;
+        int nsame, start;
 
         width = gi->width[sfb];
         j += width;
@@ -491,7 +465,7 @@ trancate_smallspectrums(lame_internal_flags const *gfc,
         trancateThreshold = 0.0;
         start = 0;
         do {
-            FLOAT   noise;
+            FLOAT noise;
             for (nsame = 1; start + nsame < width; nsame++)
                 if (NEQ(work[start + j - width], work[start + j + nsame - width]))
                     break;
@@ -538,9 +512,8 @@ trancate_smallspectrums(lame_internal_flags const *gfc,
  *************************************************************************/
 
 inline static int
-loop_break(const gr_info * const cod_info)
-{
-    int     sfb;
+loop_break(const gr_info *const cod_info) {
+    int sfb;
 
     for (sfb = 0; sfb < cod_info->sfbmax; sfb++)
         if (cod_info->scalefac[sfb]
@@ -566,16 +539,14 @@ loop_break(const gr_info * const cod_info)
  *************************************************************************/
 
 static double
-penalties(double noise)
-{
+penalties(double noise) {
     return FAST_LOG10(0.368 + 0.632 * noise * noise * noise);
 }
 
 static double
-get_klemm_noise(const FLOAT * distort, const gr_info * const gi)
-{
-    int     sfb;
-    double  klemm_noise = 1E-37;
+get_klemm_noise(const FLOAT *distort, const gr_info *const gi) {
+    int sfb;
+    double klemm_noise = 1E-37;
     for (sfb = 0; sfb < gi->psymax; sfb++)
         klemm_noise += penalties(distort[sfb]);
 
@@ -584,9 +555,8 @@ get_klemm_noise(const FLOAT * distort, const gr_info * const gi)
 
 inline static int
 quant_compare(const int quant_comp,
-              const calc_noise_result * const best,
-              calc_noise_result * const calc, const gr_info * const gi, const FLOAT * distort)
-{
+              const calc_noise_result *const best,
+              calc_noise_result *const calc, const gr_info *const gi, const FLOAT *distort) {
     /*
        noise is given in decibels (dB) relative to masking thesholds.
 
@@ -595,18 +565,17 @@ quant_compare(const int quant_comp,
        max_noise:   max quantization noise
 
      */
-    int     better;
+    int better;
 
     switch (quant_comp) {
-    default:
-    case 9:{
+        default:
+        case 9: {
             if (best->over_count > 0) {
                 /* there are distorted sfb */
                 better = calc->over_SSD <= best->over_SSD;
                 if (calc->over_SSD == best->over_SSD)
                     better = calc->bits < best->bits;
-            }
-            else {
+            } else {
                 /* no distorted sfb */
                 better = ((calc->max_noise < 0) &&
                           ((calc->max_noise * 10 + calc->bits) <=
@@ -615,59 +584,64 @@ quant_compare(const int quant_comp,
             break;
         }
 
-    case 0:
-        better = calc->over_count < best->over_count
-            || (calc->over_count == best->over_count && calc->over_noise < best->over_noise)
-            || (calc->over_count == best->over_count &&
-                EQ(calc->over_noise, best->over_noise) && calc->tot_noise < best->tot_noise);
-        break;
+        case 0:
+            better = calc->over_count < best->over_count
+                     ||
+                     (calc->over_count == best->over_count && calc->over_noise < best->over_noise)
+                     || (calc->over_count == best->over_count &&
+                         EQ(calc->over_noise, best->over_noise) &&
+                         calc->tot_noise < best->tot_noise);
+            break;
 
-    case 8:
-        calc->max_noise = get_klemm_noise(distort, gi);
-        /*lint --fallthrough */
-    case 1:
-        better = calc->max_noise < best->max_noise;
-        break;
-    case 2:
-        better = calc->tot_noise < best->tot_noise;
-        break;
-    case 3:
-        better = (calc->tot_noise < best->tot_noise)
-            && (calc->max_noise < best->max_noise);
-        break;
-    case 4:
-        better = (calc->max_noise <= 0.0 && best->max_noise > 0.2)
-            || (calc->max_noise <= 0.0 &&
-                best->max_noise < 0.0 &&
-                best->max_noise > calc->max_noise - 0.2 && calc->tot_noise < best->tot_noise)
-            || (calc->max_noise <= 0.0 &&
-                best->max_noise > 0.0 &&
-                best->max_noise > calc->max_noise - 0.2 &&
-                calc->tot_noise < best->tot_noise + best->over_noise)
-            || (calc->max_noise > 0.0 &&
-                best->max_noise > -0.05 &&
-                best->max_noise > calc->max_noise - 0.1 &&
-                calc->tot_noise + calc->over_noise < best->tot_noise + best->over_noise)
-            || (calc->max_noise > 0.0 &&
-                best->max_noise > -0.1 &&
-                best->max_noise > calc->max_noise - 0.15 &&
-                calc->tot_noise + calc->over_noise + calc->over_noise <
-                best->tot_noise + best->over_noise + best->over_noise);
-        break;
-    case 5:
-        better = calc->over_noise < best->over_noise
-            || (EQ(calc->over_noise, best->over_noise) && calc->tot_noise < best->tot_noise);
-        break;
-    case 6:
-        better = calc->over_noise < best->over_noise
-            || (EQ(calc->over_noise, best->over_noise) &&
-                (calc->max_noise < best->max_noise
-                 || (EQ(calc->max_noise, best->max_noise) && calc->tot_noise <= best->tot_noise)
-                ));
-        break;
-    case 7:
-        better = calc->over_count < best->over_count || calc->over_noise < best->over_noise;
-        break;
+        case 8:
+            calc->max_noise = get_klemm_noise(distort, gi);
+            /*lint --fallthrough */
+        case 1:
+            better = calc->max_noise < best->max_noise;
+            break;
+        case 2:
+            better = calc->tot_noise < best->tot_noise;
+            break;
+        case 3:
+            better = (calc->tot_noise < best->tot_noise)
+                     && (calc->max_noise < best->max_noise);
+            break;
+        case 4:
+            better = (calc->max_noise <= 0.0 && best->max_noise > 0.2)
+                     || (calc->max_noise <= 0.0 &&
+                         best->max_noise < 0.0 &&
+                         best->max_noise > calc->max_noise - 0.2 &&
+                         calc->tot_noise < best->tot_noise)
+                     || (calc->max_noise <= 0.0 &&
+                         best->max_noise > 0.0 &&
+                         best->max_noise > calc->max_noise - 0.2 &&
+                         calc->tot_noise < best->tot_noise + best->over_noise)
+                     || (calc->max_noise > 0.0 &&
+                         best->max_noise > -0.05 &&
+                         best->max_noise > calc->max_noise - 0.1 &&
+                         calc->tot_noise + calc->over_noise < best->tot_noise + best->over_noise)
+                     || (calc->max_noise > 0.0 &&
+                         best->max_noise > -0.1 &&
+                         best->max_noise > calc->max_noise - 0.15 &&
+                         calc->tot_noise + calc->over_noise + calc->over_noise <
+                         best->tot_noise + best->over_noise + best->over_noise);
+            break;
+        case 5:
+            better = calc->over_noise < best->over_noise
+                     ||
+                     (EQ(calc->over_noise, best->over_noise) && calc->tot_noise < best->tot_noise);
+            break;
+        case 6:
+            better = calc->over_noise < best->over_noise
+                     || (EQ(calc->over_noise, best->over_noise) &&
+                         (calc->max_noise < best->max_noise
+                          || (EQ(calc->max_noise, best->max_noise) &&
+                              calc->tot_noise <= best->tot_noise)
+                         ));
+            break;
+        case 7:
+            better = calc->over_count < best->over_count || calc->over_noise < best->over_noise;
+            break;
     }
 
 
@@ -684,7 +658,6 @@ quant_compare(const int quant_comp,
 
     return better;
 }
-
 
 
 /*************************************************************************
@@ -718,18 +691,16 @@ quant_compare(const int quant_comp,
  *
  *************************************************************************/
 static void
-amp_scalefac_bands(lame_internal_flags * gfc,
-                   gr_info * const cod_info, FLOAT const *distort, FLOAT xrpow[576], int bRefine)
-{
+amp_scalefac_bands(lame_internal_flags *gfc,
+                   gr_info *const cod_info, FLOAT const *distort, FLOAT xrpow[576], int bRefine) {
     SessionConfig_t const *const cfg = &gfc->cfg;
-    int     j, sfb;
-    FLOAT   ifqstep34, trigger;
-    int     noise_shaping_amp;
+    int j, sfb;
+    FLOAT ifqstep34, trigger;
+    int noise_shaping_amp;
 
     if (cod_info->scalefac_scale == 0) {
         ifqstep34 = 1.29683955465100964055; /* 2**(.75*.5) */
-    }
-    else {
+    } else {
         ifqstep34 = 1.68179283050742922612; /* 2**(.75*1) */
     }
 
@@ -748,32 +719,32 @@ amp_scalefac_bands(lame_internal_flags * gfc,
             noise_shaping_amp = 1;
     }
     switch (noise_shaping_amp) {
-    case 2:
-        /* amplify exactly 1 band */
-        break;
+        case 2:
+            /* amplify exactly 1 band */
+            break;
 
-    case 1:
-        /* amplify bands within 50% of max (on db scale) */
-        if (trigger > 1.0)
-            trigger = pow(trigger, .5);
-        else
-            trigger *= .95;
-        break;
+        case 1:
+            /* amplify bands within 50% of max (on db scale) */
+            if (trigger > 1.0)
+                trigger = pow(trigger, .5);
+            else
+                trigger *= .95;
+            break;
 
-    case 0:
-    default:
-        /* ISO algorithm.  amplify all bands with distort>1 */
-        if (trigger > 1.0)
-            trigger = 1.0;
-        else
-            trigger *= .95;
-        break;
+        case 0:
+        default:
+            /* ISO algorithm.  amplify all bands with distort>1 */
+            if (trigger > 1.0)
+                trigger = 1.0;
+            else
+                trigger *= .95;
+            break;
     }
 
     j = 0;
     for (sfb = 0; sfb < cod_info->sfbmax; sfb++) {
         int const width = cod_info->width[sfb];
-        int     l;
+        int l;
         j += width;
         if (distort[sfb] < trigger)
             continue;
@@ -806,15 +777,14 @@ amp_scalefac_bands(lame_internal_flags * gfc,
  *************************************************************************/
 
 static void
-inc_scalefac_scale(gr_info * const cod_info, FLOAT xrpow[576])
-{
-    int     l, j, sfb;
+inc_scalefac_scale(gr_info *const cod_info, FLOAT xrpow[576]) {
+    int l, j, sfb;
     const FLOAT ifqstep34 = 1.29683955465100964055;
 
     j = 0;
     for (sfb = 0; sfb < cod_info->sfbmax; sfb++) {
         int const width = cod_info->width[sfb];
-        int     s = cod_info->scalefac[sfb];
+        int s = cod_info->scalefac[sfb];
         if (cod_info->preflag)
             s += pretab[sfb];
         j += width;
@@ -833,7 +803,6 @@ inc_scalefac_scale(gr_info * const cod_info, FLOAT xrpow[576])
 }
 
 
-
 /*************************************************************************
  *
  *      inc_subblock_gain()
@@ -845,10 +814,9 @@ inc_scalefac_scale(gr_info * const cod_info, FLOAT xrpow[576])
  *************************************************************************/
 
 static int
-inc_subblock_gain(const lame_internal_flags * const gfc, gr_info * const cod_info, FLOAT xrpow[576])
-{
-    int     sfb, window;
-    int    *const scalefac = cod_info->scalefac;
+inc_subblock_gain(const lame_internal_flags *const gfc, gr_info *const cod_info, FLOAT xrpow[576]) {
+    int sfb, window;
+    int *const scalefac = cod_info->scalefac;
 
     /* subbloc_gain can't do anything in the long block region */
     for (sfb = 0; sfb < cod_info->sfb_lmax; sfb++) {
@@ -857,7 +825,7 @@ inc_subblock_gain(const lame_internal_flags * const gfc, gr_info * const cod_inf
     }
 
     for (window = 0; window < 3; window++) {
-        int     s1, s2, l, j;
+        int s1, s2, l, j;
         s1 = s2 = 0;
 
         for (sfb = cod_info->sfb_lmax + window; sfb < cod_info->sfbdivide; sfb += 3) {
@@ -882,9 +850,9 @@ inc_subblock_gain(const lame_internal_flags * const gfc, gr_info * const cod_inf
         cod_info->subblock_gain[window]++;
         j = gfc->scalefac_band.l[cod_info->sfb_lmax];
         for (sfb = cod_info->sfb_lmax + window; sfb < cod_info->sfbmax; sfb += 3) {
-            FLOAT   amp;
+            FLOAT amp;
             int const width = cod_info->width[sfb];
-            int     s = scalefac[sfb];
+            int s = scalefac[sfb];
             assert(s >= 0);
             s = s - (4 >> cod_info->scalefac_scale);
             if (s >= 0) {
@@ -938,11 +906,10 @@ inc_subblock_gain(const lame_internal_flags * const gfc, gr_info * const cod_inf
  *
  ********************************************************************/
 inline static int
-balance_noise(lame_internal_flags * gfc,
-              gr_info * const cod_info, FLOAT const *distort, FLOAT xrpow[576], int bRefine)
-{
+balance_noise(lame_internal_flags *gfc,
+              gr_info *const cod_info, FLOAT const *distort, FLOAT xrpow[576], int bRefine) {
     SessionConfig_t const *const cfg = &gfc->cfg;
-    int     status;
+    int status;
 
     amp_scalefac_bands(gfc, cod_info, distort, xrpow, bRefine);
 
@@ -972,11 +939,10 @@ balance_noise(lame_internal_flags * gfc,
         if (!cod_info->scalefac_scale) {
             inc_scalefac_scale(cod_info, xrpow);
             status = 0;
-        }
-        else {
+        } else {
             if (cod_info->block_type == SHORT_TYPE && cfg->subblock_gain > 0) {
                 status = inc_subblock_gain(gfc, cod_info, xrpow)
-                    || loop_break(cod_info);
+                         || loop_break(cod_info);
             }
         }
     }
@@ -986,7 +952,6 @@ balance_noise(lame_internal_flags * gfc,
     }
     return !status;
 }
-
 
 
 /************************************************************************
@@ -1008,23 +973,23 @@ balance_noise(lame_internal_flags * gfc,
  ************************************************************************/
 
 static int
-outer_loop(lame_internal_flags * gfc, gr_info * const cod_info, const FLOAT * const l3_xmin, /* allowed distortion */
+outer_loop(lame_internal_flags *gfc, gr_info *const cod_info,
+           const FLOAT *const l3_xmin, /* allowed distortion */
            FLOAT xrpow[576], /* coloured magnitudes of spectral */
-           const int ch, const int targ_bits)
-{                       /* maximum allowed bits */
+           const int ch, const int targ_bits) {                       /* maximum allowed bits */
     SessionConfig_t const *const cfg = &gfc->cfg;
     gr_info cod_info_w;
-    FLOAT   save_xrpow[576];
-    FLOAT   distort[SFBMAX];
+    FLOAT save_xrpow[576];
+    FLOAT distort[SFBMAX];
     calc_noise_result best_noise_info;
-    int     huff_bits;
-    int     better;
-    int     age;
+    int huff_bits;
+    int better;
+    int age;
     calc_noise_data prev_noise;
-    int     best_part2_3_length = 9999999;
-    int     bEndOfSearch = 0;
-    int     bRefine = 0;
-    int     best_ggain_pass1 = 0;
+    int best_part2_3_length = 9999999;
+    int bEndOfSearch = 0;
+    int bRefine = 0;
+    int best_ggain_pass1 = 0;
 
     (void) bin_search_StepSize(gfc, cod_info, targ_bits, ch, xrpow);
 
@@ -1049,8 +1014,8 @@ outer_loop(lame_internal_flags * gfc, gr_info * const cod_info, const FLOAT * co
         /* BEGIN MAIN LOOP */
         do {
             calc_noise_result noise_info;
-            int     search_limit;
-            int     maxggain = 255;
+            int search_limit;
+            int maxggain = 255;
 
             /* When quantization with no distorted bands is found,
              * allow up to X new unsuccesful tries in serial. This
@@ -1060,8 +1025,7 @@ outer_loop(lame_internal_flags * gfc, gr_info * const cod_info, const FLOAT * co
 
             if (gfc->sv_qnt.substep_shaping & 2) {
                 search_limit = 20;
-            }
-            else {
+            } else {
                 search_limit = 3;
             }
 
@@ -1101,7 +1065,7 @@ outer_loop(lame_internal_flags * gfc, gr_info * const cod_info, const FLOAT * co
             /*  increase quantizer stepsize until needed bits are below maximum
              */
             while ((cod_info_w.part2_3_length
-                    = count_bits(gfc, xrpow, &cod_info_w, &prev_noise)) > huff_bits
+                            = count_bits(gfc, xrpow, &cod_info_w, &prev_noise)) > huff_bits
                    && cod_info_w.global_gain <= maxggain)
                 cod_info_w.global_gain++;
 
@@ -1111,7 +1075,8 @@ outer_loop(lame_internal_flags * gfc, gr_info * const cod_info, const FLOAT * co
             if (best_noise_info.over_count == 0) {
 
                 while ((cod_info_w.part2_3_length
-                        = count_bits(gfc, xrpow, &cod_info_w, &prev_noise)) > best_part2_3_length
+                                = count_bits(gfc, xrpow, &cod_info_w, &prev_noise)) >
+                       best_part2_3_length
                        && cod_info_w.global_gain <= maxggain)
                     cod_info_w.global_gain++;
 
@@ -1145,8 +1110,7 @@ outer_loop(lame_internal_flags * gfc, gr_info * const cod_info, const FLOAT * co
                     /* store for later reuse */
                     memcpy(save_xrpow, xrpow, sizeof(FLOAT) * 576);
                 }
-            }
-            else {
+            } else {
                 /* early stop? */
                 if (cfg->full_outer_loop == 0) {
                     if (++age > search_limit && best_noise_info.over_count == 0)
@@ -1158,8 +1122,7 @@ outer_loop(lame_internal_flags * gfc, gr_info * const cod_info, const FLOAT * co
                         break;
                 }
             }
-        }
-        while ((cod_info_w.global_gain + cod_info_w.scalefac_scale) < 255);
+        } while ((cod_info_w.global_gain + cod_info_w.scalefac_scale) < 255);
 
         if (cfg->noise_shaping_amp == 3) {
             if (!bRefine) {
@@ -1170,14 +1133,12 @@ outer_loop(lame_internal_flags * gfc, gr_info * const cod_info, const FLOAT * co
                 best_ggain_pass1 = cod_info_w.global_gain;
 
                 bRefine = 1;
-            }
-            else {
+            } else {
                 /* search already refined, stop */
                 bEndOfSearch = 1;
             }
 
-        }
-        else {
+        } else {
             bEndOfSearch = 1;
         }
     }
@@ -1188,16 +1149,13 @@ outer_loop(lame_internal_flags * gfc, gr_info * const cod_info, const FLOAT * co
     if (cfg->vbr == vbr_rh || cfg->vbr == vbr_mtrh || cfg->vbr == vbr_mt)
         /* restore for reuse on next try */
         memcpy(xrpow, save_xrpow, sizeof(FLOAT) * 576);
-    /*  do the 'substep shaping'
-     */
+        /*  do the 'substep shaping'
+         */
     else if (gfc->sv_qnt.substep_shaping & 1)
         trancate_smallspectrums(gfc, cod_info, l3_xmin, xrpow);
 
     return best_noise_info.over_count;
 }
-
-
-
 
 
 /************************************************************************
@@ -1211,8 +1169,7 @@ outer_loop(lame_internal_flags * gfc, gr_info * const cod_info, const FLOAT * co
  ************************************************************************/
 
 static void
-iteration_finish_one(lame_internal_flags * gfc, int gr, int ch)
-{
+iteration_finish_one(lame_internal_flags *gfc, int gr, int ch) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     III_side_info_t *const l3_side = &gfc->l3_side;
     gr_info *const cod_info = &l3_side->tt[gr][ch];
@@ -1232,7 +1189,6 @@ iteration_finish_one(lame_internal_flags * gfc, int gr, int ch)
 }
 
 
-
 /*********************************************************************
  *
  *      VBR_encode_granule()
@@ -1242,16 +1198,16 @@ iteration_finish_one(lame_internal_flags * gfc, int gr, int ch)
  *********************************************************************/
 
 static void
-VBR_encode_granule(lame_internal_flags * gfc, gr_info * const cod_info, const FLOAT * const l3_xmin, /* allowed distortion of the scalefactor */
+VBR_encode_granule(lame_internal_flags *gfc, gr_info *const cod_info,
+                   const FLOAT *const l3_xmin, /* allowed distortion of the scalefactor */
                    FLOAT xrpow[576], /* coloured magnitudes of spectral values */
-                   const int ch, int min_bits, int max_bits)
-{
+                   const int ch, int min_bits, int max_bits) {
     gr_info bst_cod_info;
-    FLOAT   bst_xrpow[576];
+    FLOAT bst_xrpow[576];
     int const Max_bits = max_bits;
-    int     real_bits = max_bits + 1;
-    int     this_bits = (max_bits + min_bits) / 2;
-    int     dbits, over, found = 0;
+    int real_bits = max_bits + 1;
+    int this_bits = (max_bits + min_bits) / 2;
+    int dbits, over, found = 0;
     int const sfb21_extra = gfc->sv_qnt.sfb21_extra;
 
     assert(Max_bits <= MAX_BITS_PER_CHANNEL);
@@ -1291,8 +1247,7 @@ VBR_encode_granule(lame_internal_flags * gfc, gr_info * const cod_info, const FL
             max_bits = real_bits - 32;
             dbits = max_bits - min_bits;
             this_bits = (max_bits + min_bits) / 2;
-        }
-        else {
+        } else {
             /*  try with more bits
              */
             min_bits = this_bits + 32;
@@ -1323,7 +1278,6 @@ VBR_encode_granule(lame_internal_flags * gfc, gr_info * const cod_info, const FL
 }
 
 
-
 /************************************************************************
  *
  *      get_framebits()
@@ -1338,11 +1292,10 @@ VBR_encode_granule(lame_internal_flags * gfc, gr_info * const cod_info, const FL
  ************************************************************************/
 
 static void
-get_framebits(lame_internal_flags * gfc, int frameBits[15])
-{
+get_framebits(lame_internal_flags *gfc, int frameBits[15]) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     EncResult_t *const eov = &gfc->ov_enc;
-    int     bitsPerFrame, i;
+    int bitsPerFrame, i;
 
     /*  always use at least this many bits per granule per channel
      *  unless we detect analog silence, see below
@@ -1387,19 +1340,18 @@ get_framebits(lame_internal_flags * gfc, int frameBits[15])
 /* RH: this one needs to be overhauled sometime */
 
 static int
-VBR_old_prepare(lame_internal_flags * gfc,
+VBR_old_prepare(lame_internal_flags *gfc,
                 const FLOAT pe[2][2], FLOAT const ms_ener_ratio[2],
                 const III_psy_ratio ratio[2][2],
                 FLOAT l3_xmin[2][2][SFBMAX],
-                int frameBits[16], int min_bits[2][2], int max_bits[2][2], int bands[2][2])
-{
+                int frameBits[16], int min_bits[2][2], int max_bits[2][2], int bands[2][2]) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     EncResult_t *const eov = &gfc->ov_enc;
 
-    FLOAT   masking_lower_db, adjust = 0.0;
-    int     gr, ch;
-    int     analog_silence = 1;
-    int     avg, mxb, bits = 0;
+    FLOAT masking_lower_db, adjust = 0.0;
+    int gr, ch;
+    int analog_silence = 1;
+    int avg, mxb, bits = 0;
 
     eov->bitrate_index = cfg->vbr_max_bitrate_index;
     avg = ResvFrameBegin(gfc, &avg) / cfg->mode_gr;
@@ -1418,8 +1370,7 @@ VBR_old_prepare(lame_internal_flags * gfc,
             if (cod_info->block_type != SHORT_TYPE) { /* NORM, START or STOP type */
                 adjust = 1.28 / (1 + exp(3.5 - pe[gr][ch] / 300.)) - 0.05;
                 masking_lower_db = gfc->sv_qnt.mask_adjust - adjust;
-            }
-            else {
+            } else {
                 adjust = 2.56 / (1 + exp(3.5 - pe[gr][ch] / 300.)) - 0.14;
                 masking_lower_db = gfc->sv_qnt.mask_adjust_short - adjust;
             }
@@ -1452,14 +1403,13 @@ VBR_old_prepare(lame_internal_flags * gfc,
 
 static void
 bitpressure_strategy(lame_internal_flags const *gfc,
-                     FLOAT l3_xmin[2][2][SFBMAX], const int min_bits[2][2], int max_bits[2][2])
-{
+                     FLOAT l3_xmin[2][2][SFBMAX], const int min_bits[2][2], int max_bits[2][2]) {
     SessionConfig_t const *const cfg = &gfc->cfg;
-    int     gr, ch, sfb;
+    int gr, ch, sfb;
     for (gr = 0; gr < cfg->mode_gr; gr++) {
         for (ch = 0; ch < cfg->channels_out; ch++) {
             gr_info const *const gi = &gfc->l3_side.tt[gr][ch];
-            FLOAT  *pxmin = l3_xmin[gr][ch];
+            FLOAT *pxmin = l3_xmin[gr][ch];
             for (sfb = 0; sfb < gi->psy_lmax; sfb++)
                 *pxmin++ *= 1. + .029 * sfb * sfb / SBMAX_l / SBMAX_l;
 
@@ -1488,21 +1438,20 @@ bitpressure_strategy(lame_internal_flags const *gfc,
  ************************************************************************/
 
 void
-VBR_old_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
-                       const FLOAT ms_ener_ratio[2], const III_psy_ratio ratio[2][2])
-{
+VBR_old_iteration_loop(lame_internal_flags *gfc, const FLOAT pe[2][2],
+                       const FLOAT ms_ener_ratio[2], const III_psy_ratio ratio[2][2]) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     EncResult_t *const eov = &gfc->ov_enc;
-    FLOAT   l3_xmin[2][2][SFBMAX];
+    FLOAT l3_xmin[2][2][SFBMAX];
 
-    FLOAT   xrpow[576];
-    int     bands[2][2];
-    int     frameBits[15];
-    int     used_bits;
-    int     bits;
-    int     min_bits[2][2], max_bits[2][2];
-    int     mean_bits;
-    int     ch, gr, analog_silence;
+    FLOAT xrpow[576];
+    int bands[2][2];
+    int frameBits[15];
+    int used_bits;
+    int bits;
+    int min_bits[2][2], max_bits[2][2];
+    int mean_bits;
+    int ch, gr, analog_silence;
     III_side_info_t *const l3_side = &gfc->l3_side;
 
     analog_silence = VBR_old_prepare(gfc, pe, ms_ener_ratio, ratio,
@@ -1518,7 +1467,7 @@ VBR_old_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
 
         for (gr = 0; gr < cfg->mode_gr; gr++) {
             for (ch = 0; ch < cfg->channels_out; ch++) {
-                int     ret;
+                int ret;
                 gr_info *const cod_info = &l3_side->tt[gr][ch];
 
                 /*  init_outer_loop sets up cod_info, scalefac and xrpow
@@ -1564,7 +1513,7 @@ VBR_old_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
         if (used_bits <= bits)
             break;
 
-        bitpressure_strategy(gfc, l3_xmin, (const int (*)[2])min_bits, max_bits);
+        bitpressure_strategy(gfc, l3_xmin, (const int (*)[2]) min_bits, max_bits);
 
     }                   /* breaks adjusted */
     /*--------------------------------------*/
@@ -1578,20 +1527,18 @@ VBR_old_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
 }
 
 
-
 static int
-VBR_new_prepare(lame_internal_flags * gfc,
+VBR_new_prepare(lame_internal_flags *gfc,
                 const FLOAT pe[2][2], const III_psy_ratio ratio[2][2],
                 FLOAT l3_xmin[2][2][SFBMAX], int frameBits[16], int max_bits[2][2],
-                int* max_resv)
-{
+                int *max_resv) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     EncResult_t *const eov = &gfc->ov_enc;
 
-    int     gr, ch;
-    int     analog_silence = 1;
-    int     avg, bits = 0;
-    int     maximum_framebits;
+    int gr, ch;
+    int analog_silence = 1;
+    int avg, bits = 0;
+    int maximum_framebits;
 
     if (!cfg->free_format) {
         eov->bitrate_index = cfg->vbr_max_bitrate_index;
@@ -1600,8 +1547,7 @@ VBR_new_prepare(lame_internal_flags * gfc,
 
         get_framebits(gfc, frameBits);
         maximum_framebits = frameBits[cfg->vbr_max_bitrate_index];
-    }
-    else {
+    } else {
         eov->bitrate_index = 0;
         maximum_framebits = ResvFrameBegin(gfc, &avg);
         frameBits[0] = maximum_framebits;
@@ -1641,26 +1587,24 @@ VBR_new_prepare(lame_internal_flags * gfc,
 }
 
 
-
 void
-VBR_new_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
-                       const FLOAT ms_ener_ratio[2], const III_psy_ratio ratio[2][2])
-{
+VBR_new_iteration_loop(lame_internal_flags *gfc, const FLOAT pe[2][2],
+                       const FLOAT ms_ener_ratio[2], const III_psy_ratio ratio[2][2]) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     EncResult_t *const eov = &gfc->ov_enc;
-    FLOAT   l3_xmin[2][2][SFBMAX];
+    FLOAT l3_xmin[2][2][SFBMAX];
 
-    FLOAT   xrpow[2][2][576];
-    int     frameBits[15];
-    int     used_bits;
-    int     max_bits[2][2];
-    int     ch, gr, analog_silence, pad;
+    FLOAT xrpow[2][2][576];
+    int frameBits[15];
+    int used_bits;
+    int max_bits[2][2];
+    int ch, gr, analog_silence, pad;
     III_side_info_t *const l3_side = &gfc->l3_side;
 
-    const FLOAT (*const_l3_xmin)[2][SFBMAX] = (const FLOAT (*)[2][SFBMAX])l3_xmin;
-    const FLOAT (*const_xrpow)[2][576] = (const FLOAT (*)[2][576])xrpow;
-    const int (*const_max_bits)[2] = (const int (*)[2])max_bits;
-    
+    const FLOAT (*const_l3_xmin)[2][SFBMAX] = (const FLOAT (*)[2][SFBMAX]) l3_xmin;
+    const FLOAT (*const_xrpow)[2][576] = (const FLOAT (*)[2][576]) xrpow;
+    const int (*const_max_bits)[2] = (const int (*)[2]) max_bits;
+
     (void) ms_ener_ratio; /* not used */
 
     memset(xrpow, 0, sizeof(xrpow));
@@ -1685,7 +1629,7 @@ VBR_new_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
     used_bits = VBR_encode_frame(gfc, const_xrpow, const_l3_xmin, const_max_bits);
 
     if (!cfg->free_format) {
-        int     i, j;
+        int i, j;
 
         /*  find lowest bitrate able to hold used bits
          */
@@ -1694,13 +1638,12 @@ VBR_new_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
              *  any hard framesize limit, so start with smallest possible frame
              */
             i = 1;
-        }
-        else {
+        } else {
             i = cfg->vbr_min_bitrate_index;
         }
 
         for (; i < cfg->vbr_max_bitrate_index; i++) {
-            if (used_bits <= frameBits[i]) 
+            if (used_bits <= frameBits[i])
                 break;
         }
         if (i > cfg->vbr_max_bitrate_index) {
@@ -1709,16 +1652,14 @@ VBR_new_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
         if (pad > 0) {
             for (j = cfg->vbr_max_bitrate_index; j > i; --j) {
                 int const unused = frameBits[j] - used_bits;
-                if (unused <= pad) 
+                if (unused <= pad)
                     break;
             }
             eov->bitrate_index = j;
-        }
-        else {
+        } else {
             eov->bitrate_index = i;
         }
-    }
-    else {
+    } else {
 #if 0
         static int mmm = 0;
         int     fff = getFramesize_kbps(gfc, used_bits);
@@ -1731,7 +1672,7 @@ VBR_new_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
     }
     if (used_bits <= frameBits[eov->bitrate_index]) {
         /* update Reservoire status */
-        int     mean_bits, fullframebits;
+        int mean_bits, fullframebits;
         fullframebits = ResvFrameBegin(gfc, &mean_bits);
         assert(used_bits <= fullframebits);
         for (gr = 0; gr < cfg->mode_gr; gr++) {
@@ -1741,17 +1682,13 @@ VBR_new_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
             }
         }
         ResvFrameEnd(gfc, mean_bits);
-    }
-    else {
+    } else {
         /* SHOULD NOT HAPPEN INTERNAL ERROR
          */
         ERRORF(gfc, "INTERNAL ERROR IN VBR NEW CODE, please send bug report\n");
         exit(-1);
     }
 }
-
-
-
 
 
 /********************************************************************
@@ -1765,17 +1702,16 @@ VBR_new_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
  ********************************************************************/
 
 static void
-calc_target_bits(lame_internal_flags * gfc,
+calc_target_bits(lame_internal_flags *gfc,
                  const FLOAT pe[2][2],
                  FLOAT const ms_ener_ratio[2],
-                 int targ_bits[2][2], int *analog_silence_bits, int *max_frame_bits)
-{
+                 int targ_bits[2][2], int *analog_silence_bits, int *max_frame_bits) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     EncResult_t *const eov = &gfc->ov_enc;
     III_side_info_t const *const l3_side = &gfc->l3_side;
-    FLOAT   res_factor;
-    int     gr, ch, totbits, mean_bits;
-    int     framesize = 576 * cfg->mode_gr;
+    FLOAT res_factor;
+    int gr, ch, totbits, mean_bits;
+    int framesize = 576 * cfg->mode_gr;
 
     eov->bitrate_index = cfg->vbr_max_bitrate_index;
     *max_frame_bits = ResvFrameBegin(gfc, &mean_bits);
@@ -1817,12 +1753,12 @@ calc_target_bits(lame_internal_flags * gfc,
         res_factor = 1.00;
 
     for (gr = 0; gr < cfg->mode_gr; gr++) {
-        int     sum = 0;
+        int sum = 0;
         for (ch = 0; ch < cfg->channels_out; ch++) {
             targ_bits[gr][ch] = res_factor * mean_bits;
 
             if (pe[gr][ch] > 700) {
-                int     add_bits = (pe[gr][ch] - 700) / 1.4;
+                int add_bits = (pe[gr][ch] - 700) / 1.4;
 
                 gr_info const *const cod_info = &l3_side->tt[gr][ch];
                 targ_bits[gr][ch] = res_factor * mean_bits;
@@ -1883,10 +1819,6 @@ calc_target_bits(lame_internal_flags * gfc,
 }
 
 
-
-
-
-
 /********************************************************************
  *
  *  ABR_iteration_loop()
@@ -1898,17 +1830,16 @@ calc_target_bits(lame_internal_flags * gfc,
  ********************************************************************/
 
 void
-ABR_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
-                   const FLOAT ms_ener_ratio[2], const III_psy_ratio ratio[2][2])
-{
+ABR_iteration_loop(lame_internal_flags *gfc, const FLOAT pe[2][2],
+                   const FLOAT ms_ener_ratio[2], const III_psy_ratio ratio[2][2]) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     EncResult_t *const eov = &gfc->ov_enc;
-    FLOAT   l3_xmin[SFBMAX];
-    FLOAT   xrpow[576];
-    int     targ_bits[2][2];
-    int     mean_bits, max_frame_bits;
-    int     ch, gr, ath_over;
-    int     analog_silence_bits;
+    FLOAT l3_xmin[SFBMAX];
+    FLOAT xrpow[576];
+    int targ_bits[2][2];
+    int mean_bits, max_frame_bits;
+    int ch, gr, ath_over;
+    int analog_silence_bits;
     gr_info *cod_info;
     III_side_info_t *const l3_side = &gfc->l3_side;
 
@@ -1924,15 +1855,14 @@ ABR_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
             ms_convert(&gfc->l3_side, gr);
         }
         for (ch = 0; ch < cfg->channels_out; ch++) {
-            FLOAT   adjust, masking_lower_db;
+            FLOAT adjust, masking_lower_db;
             cod_info = &l3_side->tt[gr][ch];
 
             if (cod_info->block_type != SHORT_TYPE) { /* NORM, START or STOP type */
                 /* adjust = 1.28/(1+exp(3.5-pe[gr][ch]/300.))-0.05; */
                 adjust = 0;
                 masking_lower_db = gfc->sv_qnt.mask_adjust - adjust;
-            }
-            else {
+            } else {
                 /* adjust = 2.56/(1+exp(3.5-pe[gr][ch]/300.))-0.14; */
                 adjust = 0;
                 masking_lower_db = gfc->sv_qnt.mask_adjust_short - adjust;
@@ -1971,10 +1901,6 @@ ABR_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
 }
 
 
-
-
-
-
 /************************************************************************
  *
  *      CBR_iteration_loop()
@@ -1986,15 +1912,14 @@ ABR_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
  ************************************************************************/
 
 void
-CBR_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
-                   const FLOAT ms_ener_ratio[2], const III_psy_ratio ratio[2][2])
-{
+CBR_iteration_loop(lame_internal_flags *gfc, const FLOAT pe[2][2],
+                   const FLOAT ms_ener_ratio[2], const III_psy_ratio ratio[2][2]) {
     SessionConfig_t const *const cfg = &gfc->cfg;
-    FLOAT   l3_xmin[SFBMAX];
-    FLOAT   xrpow[576];
-    int     targ_bits[2];
-    int     mean_bits, max_bits;
-    int     gr, ch;
+    FLOAT l3_xmin[SFBMAX];
+    FLOAT xrpow[576];
+    int targ_bits[2];
+    int mean_bits, max_bits;
+    int gr, ch;
     III_side_info_t *const l3_side = &gfc->l3_side;
     gr_info *cod_info;
 
@@ -2013,15 +1938,14 @@ CBR_iteration_loop(lame_internal_flags * gfc, const FLOAT pe[2][2],
         }
 
         for (ch = 0; ch < cfg->channels_out; ch++) {
-            FLOAT   adjust, masking_lower_db;
+            FLOAT adjust, masking_lower_db;
             cod_info = &l3_side->tt[gr][ch];
 
             if (cod_info->block_type != SHORT_TYPE) { /* NORM, START or STOP type */
                 /* adjust = 1.28/(1+exp(3.5-pe[gr][ch]/300.))-0.05; */
                 adjust = 0;
                 masking_lower_db = gfc->sv_qnt.mask_adjust - adjust;
-            }
-            else {
+            } else {
                 /* adjust = 2.56/(1+exp(3.5-pe[gr][ch]/300.))-0.14; */
                 adjust = 0;
                 masking_lower_db = gfc->sv_qnt.mask_adjust_short - adjust;

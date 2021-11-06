@@ -44,7 +44,6 @@
 #include "quantize_pvt.h"
 
 
-
 /*
  * auto-adjust of ATH, useful for low volume
  * Gabriel Bouvigne 3 feb 2001
@@ -54,10 +53,9 @@
  *   (gfc->ATH)
  */
 static void
-adjust_ATH(lame_internal_flags const *const gfc)
-{
+adjust_ATH(lame_internal_flags const *const gfc) {
     SessionConfig_t const *const cfg = &gfc->cfg;
-    FLOAT   gr2_max, max_pow;
+    FLOAT gr2_max, max_pow;
 
     if (gfc->ATH->use_adjust == 0) {
         gfc->ATH->adjust_factor = 1.0; /* no adjustment */
@@ -72,8 +70,7 @@ adjust_ATH(lame_internal_flags const *const gfc)
     if (cfg->channels_out == 2) {
         max_pow += gfc->ov_psy.loudness_sq[0][1];
         gr2_max += gfc->ov_psy.loudness_sq[1][1];
-    }
-    else {
+    } else {
         max_pow += max_pow;
         gr2_max += gr2_max;
     }
@@ -101,8 +98,7 @@ adjust_ATH(lame_internal_flags const *const gfc)
     if (max_pow > 0.03125) { /* ((1 - 0.000625)/ 31.98) from curve below */
         if (gfc->ATH->adjust_factor >= 1.0) {
             gfc->ATH->adjust_factor = 1.0;
-        }
-        else {
+        } else {
             /* preceding frame has lower ATH adjust; */
             /* ascend only to the preceding adjust_limit */
             /* in case there is leading low volume */
@@ -111,8 +107,7 @@ adjust_ATH(lame_internal_flags const *const gfc)
             }
         }
         gfc->ATH->adjust_limit = 1.0;
-    }
-    else {              /* adjustment curve */
+    } else {              /* adjustment curve */
         /* about 32 dB maximum adjust (0.000625) */
         FLOAT const adj_lim_new = 31.98 * max_pow + 0.000625;
         if (gfc->ATH->adjust_factor >= adj_lim_new) { /* descend gradually */
@@ -120,12 +115,10 @@ adjust_ATH(lame_internal_flags const *const gfc)
             if (gfc->ATH->adjust_factor < adj_lim_new) { /* stop descent */
                 gfc->ATH->adjust_factor = adj_lim_new;
             }
-        }
-        else {          /* ascend */
+        } else {          /* ascend */
             if (gfc->ATH->adjust_limit >= adj_lim_new) {
                 gfc->ATH->adjust_factor = adj_lim_new;
-            }
-            else {      /* preceding frame has lower ATH adjust; */
+            } else {      /* preceding frame has lower ATH adjust; */
                 /* ascend only to the preceding adjust_limit */
                 if (gfc->ATH->adjust_factor < gfc->ATH->adjust_limit) {
                     gfc->ATH->adjust_factor = gfc->ATH->adjust_limit;
@@ -153,11 +146,10 @@ adjust_ATH(lame_internal_flags const *const gfc)
  ***********************************************************************/
 
 static void
-updateStats(lame_internal_flags * const gfc)
-{
+updateStats(lame_internal_flags *const gfc) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     EncResult_t *eov = &gfc->ov_enc;
-    int     gr, ch;
+    int gr, ch;
     assert(0 <= eov->bitrate_index && eov->bitrate_index < 16);
     assert(0 <= eov->mode_ext && eov->mode_ext < 4);
 
@@ -172,7 +164,7 @@ updateStats(lame_internal_flags * const gfc)
     }
     for (gr = 0; gr < cfg->mode_gr; ++gr) {
         for (ch = 0; ch < cfg->channels_out; ++ch) {
-            int     bt = gfc->l3_side.tt[gr][ch].block_type;
+            int bt = gfc->l3_side.tt[gr][ch].block_type;
             if (gfc->l3_side.tt[gr][ch].mixed_block_flag)
                 bt = 4;
             eov->bitrate_blocktype_hist[eov->bitrate_index][bt]++;
@@ -184,21 +176,18 @@ updateStats(lame_internal_flags * const gfc)
 }
 
 
-
-
 static void
-lame_encode_frame_init(lame_internal_flags * gfc, const sample_t *const inbuf[2])
-{
+lame_encode_frame_init(lame_internal_flags *gfc, const sample_t *const inbuf[2]) {
     SessionConfig_t const *const cfg = &gfc->cfg;
 
-    int     ch, gr;
+    int ch, gr;
 
     if (gfc->lame_encode_frame_init == 0) {
         sample_t primebuff0[286 + 1152 + 576];
         sample_t primebuff1[286 + 1152 + 576];
         int const framesize = 576 * cfg->mode_gr;
         /* prime the MDCT/polyphase filterbank with a short block */
-        int     i, j;
+        int i, j;
         gfc->lame_encode_frame_init = 1;
         memset(primebuff0, 0, sizeof(primebuff0));
         memset(primebuff1, 0, sizeof(primebuff1));
@@ -207,8 +196,7 @@ lame_encode_frame_init(lame_internal_flags * gfc, const sample_t *const inbuf[2]
                 primebuff0[i] = 0;
                 if (cfg->channels_out == 2)
                     primebuff1[i] = 0;
-            }
-            else {
+            } else {
                 primebuff0[i] = inbuf[0][j];
                 if (cfg->channels_out == 2)
                     primebuff1[i] = inbuf[1][j];
@@ -234,11 +222,6 @@ lame_encode_frame_init(lame_internal_flags * gfc, const sample_t *const inbuf[2]
     }
 
 }
-
-
-
-
-
 
 
 /************************************************************************
@@ -304,27 +287,28 @@ typedef FLOAT chgrdata[2][2];
 
 int
 lame_encode_mp3_frame(       /* Output */
-                         lame_internal_flags * gfc, /* Context */
-                         sample_t const *inbuf_l, /* Input */
-                         sample_t const *inbuf_r, /* Input */
-                         unsigned char *mp3buf, /* Output */
-                         int mp3buf_size)
-{                       /* Output */
+        lame_internal_flags *gfc, /* Context */
+        sample_t const *inbuf_l, /* Input */
+        sample_t const *inbuf_r, /* Input */
+        unsigned char *mp3buf, /* Output */
+        int mp3buf_size) {                       /* Output */
     SessionConfig_t const *const cfg = &gfc->cfg;
-    int     mp3count;
+    int mp3count;
     III_psy_ratio masking_LR[2][2]; /*LR masking & energy */
     III_psy_ratio masking_MS[2][2]; /*MS masking & energy */
     const III_psy_ratio (*masking)[2]; /*pointer to selected maskings */
     const sample_t *inbuf[2];
 
-    FLOAT   tot_ener[2][4];
-    FLOAT   ms_ener_ratio[2] = { .5, .5 };
-    FLOAT   pe[2][2] = { {0., 0.}, {0., 0.} }, pe_MS[2][2] = { {
-    0., 0.}, {
-    0., 0.}};
+    FLOAT tot_ener[2][4];
+    FLOAT ms_ener_ratio[2] = {.5, .5};
+    FLOAT pe[2][2] = {{0., 0.},
+                      {0., 0.}}, pe_MS[2][2] = {{
+                                                        0., 0.},
+                                                {
+                                                        0., 0.}};
     FLOAT (*pe_use)[2];
 
-    int     ch, gr;
+    int ch, gr;
 
     inbuf[0] = inbuf_l;
     inbuf[1] = inbuf_r;
@@ -362,9 +346,9 @@ lame_encode_mp3_frame(       /* Output */
          * psy model has a 1 granule (576) delay that we must compensate for
          * (mt 6/99).
          */
-        int     ret;
+        int ret;
         const sample_t *bufp[2] = {0, 0}; /* address of beginning of left & right granule */
-        int     blocktype[2];
+        int blocktype[2];
 
         for (gr = 0; gr < cfg->mode_gr; gr++) {
 
@@ -414,8 +398,7 @@ lame_encode_mp3_frame(       /* Output */
 
     if (cfg->force_ms) {
         gfc->ov_enc.mode_ext = MPG_MD_MS_LR;
-    }
-    else if (cfg->mode == JOINT_STEREO) {
+    } else if (cfg->mode == JOINT_STEREO) {
         /* ms_ratio = is scaled, for historical reasons, to look like
            a ratio of side_channel / total.
            0 = signal is 100% mono
@@ -428,8 +411,8 @@ lame_encode_mp3_frame(       /* Output */
          * _next is the value of the first granule of the next frame
          */
 
-        FLOAT   sum_pe_MS = 0;
-        FLOAT   sum_pe_LR = 0;
+        FLOAT sum_pe_MS = 0;
+        FLOAT sum_pe_LR = 0;
         for (gr = 0; gr < cfg->mode_gr; gr++) {
             for (ch = 0; ch < cfg->channels_out; ch++) {
                 sum_pe_MS += pe_MS[gr][ch];
@@ -452,11 +435,10 @@ lame_encode_mp3_frame(       /* Output */
 
     /* bit and noise allocation */
     if (gfc->ov_enc.mode_ext == MPG_MD_MS_LR) {
-        masking = (const III_psy_ratio (*)[2])masking_MS; /* use MS masking */
+        masking = (const III_psy_ratio (*)[2]) masking_MS; /* use MS masking */
         pe_use = pe_MS;
-    }
-    else {
-        masking = (const III_psy_ratio (*)[2])masking_LR; /* use LR masking */
+    } else {
+        masking = (const III_psy_ratio (*)[2]) masking_LR; /* use LR masking */
         pe_use = pe;
     }
 
@@ -488,13 +470,13 @@ lame_encode_mp3_frame(       /* Output */
 
     if (cfg->vbr == vbr_off || cfg->vbr == vbr_abr) {
         static FLOAT const fircoef[9] = {
-            -0.0207887 * 5, -0.0378413 * 5, -0.0432472 * 5, -0.031183 * 5,
-            7.79609e-18 * 5, 0.0467745 * 5, 0.10091 * 5, 0.151365 * 5,
-            0.187098 * 5
+                -0.0207887 * 5, -0.0378413 * 5, -0.0432472 * 5, -0.031183 * 5,
+                7.79609e-18 * 5, 0.0467745 * 5, 0.10091 * 5, 0.151365 * 5,
+                0.187098 * 5
         };
 
-        int     i;
-        FLOAT   f;
+        int i;
+        FLOAT f;
 
         for (i = 0; i < 18; i++)
             gfc->sv_enc.pefirbuf[i] = gfc->sv_enc.pefirbuf[i + 1];
@@ -516,22 +498,21 @@ lame_encode_mp3_frame(       /* Output */
             }
         }
     }
-    switch (cfg->vbr)
-    {
-    default:
-    case vbr_off:
-        CBR_iteration_loop(gfc, (const FLOAT (*)[2])pe_use, ms_ener_ratio, masking);
-        break;
-    case vbr_abr:
-        ABR_iteration_loop(gfc, (const FLOAT (*)[2])pe_use, ms_ener_ratio, masking);
-        break;
-    case vbr_rh:
-        VBR_old_iteration_loop(gfc, (const FLOAT (*)[2])pe_use, ms_ener_ratio, masking);
-        break;
-    case vbr_mt:
-    case vbr_mtrh:
-        VBR_new_iteration_loop(gfc, (const FLOAT (*)[2])pe_use, ms_ener_ratio, masking);
-        break;
+    switch (cfg->vbr) {
+        default:
+        case vbr_off:
+            CBR_iteration_loop(gfc, (const FLOAT (*)[2]) pe_use, ms_ener_ratio, masking);
+            break;
+        case vbr_abr:
+            ABR_iteration_loop(gfc, (const FLOAT (*)[2]) pe_use, ms_ener_ratio, masking);
+            break;
+        case vbr_rh:
+            VBR_old_iteration_loop(gfc, (const FLOAT (*)[2]) pe_use, ms_ener_ratio, masking);
+            break;
+        case vbr_mt:
+        case vbr_mtrh:
+            VBR_new_iteration_loop(gfc, (const FLOAT (*)[2]) pe_use, ms_ener_ratio, masking);
+            break;
     }
 
 
@@ -552,9 +533,9 @@ lame_encode_mp3_frame(       /* Output */
     }
 
     if (cfg->analysis && gfc->pinfo != NULL) {
-        int     framesize = 576 * cfg->mode_gr;
+        int framesize = 576 * cfg->mode_gr;
         for (ch = 0; ch < cfg->channels_out; ch++) {
-            int     j;
+            int j;
             for (j = 0; j < FFTOFFSET; j++)
                 gfc->pinfo->pcmdata[ch][j] = gfc->pinfo->pcmdata[ch][j + framesize];
             for (j = FFTOFFSET; j < 1600; j++) {

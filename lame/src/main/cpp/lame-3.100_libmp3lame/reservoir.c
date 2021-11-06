@@ -80,16 +80,15 @@
  */
 
 int
-ResvFrameBegin(lame_internal_flags * gfc, int *mean_bits)
-{
+ResvFrameBegin(lame_internal_flags *gfc, int *mean_bits) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     EncStateVar_t *const esv = &gfc->sv_enc;
-    int     fullFrameBits;
-    int     resvLimit;
-    int     maxmp3buf;
+    int fullFrameBits;
+    int resvLimit;
+    int maxmp3buf;
     III_side_info_t *const l3_side = &gfc->l3_side;
-    int     frameLength;
-    int     meanBits;
+    int frameLength;
+    int meanBits;
 
     frameLength = getframebits(gfc);
     meanBits = (frameLength - cfg->sideinfo_len * 8) / cfg->mode_gr;
@@ -145,7 +144,7 @@ ResvFrameBegin(lame_internal_flags * gfc, int *mean_bits)
         esv->ResvMax = resvLimit;
     if (esv->ResvMax < 0 || cfg->disable_reservoir)
         esv->ResvMax = 0;
-    
+
     fullFrameBits = meanBits * cfg->mode_gr + Min(esv->ResvSize, esv->ResvMax);
 
     if (fullFrameBits > maxmp3buf)
@@ -157,7 +156,8 @@ ResvFrameBegin(lame_internal_flags * gfc, int *mean_bits)
     l3_side->resvDrain_pre = 0;
 
     if (gfc->pinfo != NULL) {
-        gfc->pinfo->mean_bits = meanBits / 2; /* expected bits per channel per granule [is this also right for mono/stereo, MPEG-1/2 ?] */
+        gfc->pinfo->mean_bits = meanBits /
+                                2; /* expected bits per channel per granule [is this also right for mono/stereo, MPEG-1/2 ?] */
         gfc->pinfo->resvsize = esv->ResvSize;
     }
     *mean_bits = meanBits;
@@ -172,12 +172,11 @@ ResvFrameBegin(lame_internal_flags * gfc, int *mean_bits)
   Mark Taylor 4/99
 */
 void
-ResvMaxBits(lame_internal_flags * gfc, int mean_bits, int *targ_bits, int *extra_bits, int cbr)
-{
+ResvMaxBits(lame_internal_flags *gfc, int mean_bits, int *targ_bits, int *extra_bits, int cbr) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     EncStateVar_t *const esv = &gfc->sv_enc;
-    int     add_bits, targBits, extraBits;
-    int     ResvSize = esv->ResvSize, ResvMax = esv->ResvMax;
+    int add_bits, targBits, extraBits;
+    int ResvSize = esv->ResvSize, ResvMax = esv->ResvMax;
 
     /* conpensate the saved bits used in the 1st granule */
     if (cbr)
@@ -193,8 +192,7 @@ ResvMaxBits(lame_internal_flags * gfc, int mean_bits, int *targ_bits, int *extra
         add_bits = ResvSize - (ResvMax * 9) / 10;
         targBits += add_bits;
         gfc->sv_qnt.substep_shaping |= 0x80;
-    }
-    else {
+    } else {
         add_bits = 0;
         gfc->sv_qnt.substep_shaping &= 0x7f;
         /* build up reservoir.  this builds the reservoir a little slower
@@ -223,8 +221,7 @@ ResvMaxBits(lame_internal_flags * gfc, int mean_bits, int *targ_bits, int *extra
   the reservoir to reflect the granule's usage.
 */
 void
-ResvAdjust(lame_internal_flags * gfc, gr_info const *gi)
-{
+ResvAdjust(lame_internal_flags *gfc, gr_info const *gi) {
     gfc->sv_enc.ResvSize -= gi->part2_3_length + gi->part2_length;
 }
 
@@ -236,13 +233,12 @@ ResvAdjust(lame_internal_flags * gfc, gr_info const *gi)
   bits.
 */
 void
-ResvFrameEnd(lame_internal_flags * gfc, int mean_bits)
-{
+ResvFrameEnd(lame_internal_flags *gfc, int mean_bits) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     EncStateVar_t *const esv = &gfc->sv_enc;
     III_side_info_t *const l3_side = &gfc->l3_side;
-    int     stuffingBits;
-    int     over_bits;
+    int stuffingBits;
+    int over_bits;
 
     esv->ResvSize += mean_bits * cfg->mode_gr;
     stuffingBits = 0;
@@ -281,7 +277,7 @@ ResvFrameEnd(lame_internal_flags * gfc, int mean_bits)
      * to make sure main_data_begin does not create a reservoir bigger
      * than ResvMax  mt 4/00*/
     {
-        int     mdb_bytes = Min(l3_side->main_data_begin * 8, stuffingBits) / 8;
+        int mdb_bytes = Min(l3_side->main_data_begin * 8, stuffingBits) / 8;
         l3_side->resvDrain_pre += 8 * mdb_bytes;
         stuffingBits -= 8 * mdb_bytes;
         esv->ResvSize -= 8 * mdb_bytes;

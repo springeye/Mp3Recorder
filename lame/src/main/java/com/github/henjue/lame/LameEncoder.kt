@@ -44,8 +44,10 @@ object LameEncoder {
      * @param outBitrate    brate compression ratio in KHz.
      */
     @JvmStatic
-     fun init(inSamplerate:Int, outChannel:Int,
-                             outSamplerate:Int,  outBitrate:Int) {
+    fun init(
+        inSamplerate: Int, outChannel: Int,
+        outSamplerate: Int, outBitrate: Int
+    ) {
         init(inSamplerate, outChannel, outSamplerate, outBitrate, 7);
     }
 
@@ -63,8 +65,11 @@ object LameEncoder {
      *                      7 ok quality, really fast
      */
     @JvmStatic
-    external fun init( inSamplerate:Int,  outChannel:Int,
-                                    outSamplerate:Int,  outBitrate:Int,  quality:Int);
+    external fun init(
+        inSamplerate: Int, outChannel: Int,
+        outSamplerate: Int, outBitrate: Int, quality: Int
+    );
+
     /**
      * Encode buffer to mp3.
      *
@@ -80,8 +85,10 @@ object LameEncoder {
      * -4: psycho acoustic problems
      */
     @JvmStatic
-    external fun encode(buffer_l:ShortArray,  buffer_r:ShortArray,
-                                     samples:Int, mp3buf:ByteArray):Int
+    external fun encode(
+        buffer_l: ShortArray, buffer_r: ShortArray,
+        samples: Int, mp3buf: ByteArray
+    ): Int
 
     /**
      * Flush LAME buffer.
@@ -91,7 +98,7 @@ object LameEncoder {
      * @return number of bytes output to mp3buf. Can be 0.
      */
     @JvmStatic
-    external fun flush(mp3buf:ByteArray):Int
+    external fun flush(mp3buf: ByteArray): Int
 
     /**
      * Close LAME.

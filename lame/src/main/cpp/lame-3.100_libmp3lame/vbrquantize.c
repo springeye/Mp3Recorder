@@ -35,22 +35,21 @@
 #include "quantize_pvt.h"
 
 
-
-
 struct algo_s;
 typedef struct algo_s algo_t;
 
-typedef void (*alloc_sf_f) (const algo_t *, const int *, const int *, int);
-typedef uint8_t (*find_sf_f) (const FLOAT *, const FLOAT *, FLOAT, unsigned int, uint8_t);
+typedef void (*alloc_sf_f)(const algo_t *, const int *, const int *, int);
+
+typedef uint8_t (*find_sf_f)(const FLOAT *, const FLOAT *, FLOAT, unsigned int, uint8_t);
 
 struct algo_s {
     alloc_sf_f alloc;
-    find_sf_f  find;
+    find_sf_f find;
     const FLOAT *xr34orig;
     lame_internal_flags *gfc;
     gr_info *cod_info;
-    int     mingain_l;
-    int     mingain_s[3];
+    int mingain_l;
+    int mingain_s[3];
 };
 
 
@@ -75,10 +74,9 @@ struct algo_s {
 #endif
 
 typedef VOLATILE union {
-    float   f;
-    int     i;
+    float f;
+    int i;
 } fi_union;
-
 
 
 #ifdef TAKEHIRO_IEEE754_HACK
@@ -86,7 +84,7 @@ typedef VOLATILE union {
 #else
 #define DOUBLEX FLOAT
 #endif
- 
+
 #define MAGIC_FLOAT_def (65536*(128))
 #define MAGIC_INT_def    0x4b000000
 
@@ -102,7 +100,7 @@ typedef VOLATILE union {
  *********************************************************************/
 #  define QUANTFAC(rx)  adj43[rx]
 #  define ROUNDFAC_def 0.4054f
-#  define XRPOW_FTOI(src,dest) ((dest) = (int)(src))
+#  define XRPOW_FTOI(src, dest) ((dest) = (int)(src))
 #endif
 
 static int const MAGIC_INT = MAGIC_INT_def;
@@ -112,10 +110,9 @@ static DOUBLEX const ROUNDFAC = ROUNDFAC_def;
 static DOUBLEX const MAGIC_FLOAT = MAGIC_FLOAT_def;
 
 
-inline static  float
-vec_max_c(const float * xr34, unsigned int bw)
-{
-    float   xfsf = 0;
+inline static float
+vec_max_c(const float *xr34, unsigned int bw) {
+    float xfsf = 0;
     unsigned int i = bw >> 2u;
     unsigned int const remaining = (bw & 0x03u);
 
@@ -134,19 +131,22 @@ vec_max_c(const float * xr34, unsigned int bw)
         }
         xr34 += 4;
     }
-    switch( remaining ) {
-    case 3: if (xfsf < xr34[2]) xfsf = xr34[2];
-    case 2: if (xfsf < xr34[1]) xfsf = xr34[1];
-    case 1: if (xfsf < xr34[0]) xfsf = xr34[0];
-    default: break;
+    switch (remaining) {
+        case 3:
+            if (xfsf < xr34[2]) xfsf = xr34[2];
+        case 2:
+            if (xfsf < xr34[1]) xfsf = xr34[1];
+        case 1:
+            if (xfsf < xr34[0]) xfsf = xr34[0];
+        default:
+            break;
     }
     return xfsf;
 }
 
 
-inline static  uint8_t
-find_lowest_scalefac(const FLOAT xr34)
-{
+inline static uint8_t
+find_lowest_scalefac(const FLOAT xr34) {
     uint8_t sf_ok = 255;
     uint8_t sf = 128, delsf = 64;
     uint8_t i;
@@ -156,8 +156,7 @@ find_lowest_scalefac(const FLOAT xr34)
         if (xfsf <= ixmax_val) {
             sf_ok = sf;
             sf -= delsf;
-        }
-        else {
+        } else {
             sf += delsf;
         }
         delsf >>= 1;
@@ -167,8 +166,7 @@ find_lowest_scalefac(const FLOAT xr34)
 
 
 inline static void
-k_34_4(DOUBLEX x[4], int l3[4])
-{
+k_34_4(DOUBLEX x[4], int l3[4]) {
 #ifdef TAKEHIRO_IEEE754_HACK
     fi_union fi[4];
 
@@ -207,22 +205,18 @@ k_34_4(DOUBLEX x[4], int l3[4])
 }
 
 
-
-
-
 /*  do call the calc_sfb_noise_* functions only with sf values
  *  for which holds: sfpow34*xr34 <= IXMAX_VAL
  */
 
-static  FLOAT
-calc_sfb_noise_x34(const FLOAT * xr, const FLOAT * xr34, unsigned int bw, uint8_t sf)
-{
+static FLOAT
+calc_sfb_noise_x34(const FLOAT *xr, const FLOAT *xr34, unsigned int bw, uint8_t sf) {
     DOUBLEX x[4];
-    int     l3[4];
+    int l3[4];
     const FLOAT sfpow = pow20[sf + Q_MAX2]; /*pow(2.0,sf/4.0); */
     const FLOAT sfpow34 = ipow20[sf]; /*pow(sfpow,-3.0/4.0); */
 
-    FLOAT   xfsf = 0;
+    FLOAT xfsf = 0;
     unsigned int i = bw >> 2u;
     unsigned int const remaining = (bw & 0x03u);
 
@@ -245,19 +239,25 @@ calc_sfb_noise_x34(const FLOAT * xr, const FLOAT * xr34, unsigned int bw, uint8_
     }
     if (remaining) {
         x[0] = x[1] = x[2] = x[3] = 0;
-        switch( remaining ) {
-        case 3: x[2] = sfpow34 * xr34[2];
-        case 2: x[1] = sfpow34 * xr34[1];
-        case 1: x[0] = sfpow34 * xr34[0];
+        switch (remaining) {
+            case 3:
+                x[2] = sfpow34 * xr34[2];
+            case 2:
+                x[1] = sfpow34 * xr34[1];
+            case 1:
+                x[0] = sfpow34 * xr34[0];
         }
 
         k_34_4(x, l3);
         x[0] = x[1] = x[2] = x[3] = 0;
 
-        switch( remaining ) {
-        case 3: x[2] = fabsf(xr[2]) - sfpow * pow43[l3[2]];
-        case 2: x[1] = fabsf(xr[1]) - sfpow * pow43[l3[1]];
-        case 1: x[0] = fabsf(xr[0]) - sfpow * pow43[l3[0]];
+        switch (remaining) {
+            case 3:
+                x[2] = fabsf(xr[2]) - sfpow * pow43[l3[2]];
+            case 2:
+                x[1] = fabsf(xr[1]) - sfpow * pow43[l3[1]];
+            case 1:
+                x[0] = fabsf(xr[0]) - sfpow * pow43[l3[0]];
         }
         xfsf += (x[0] * x[0] + x[1] * x[1]) + (x[2] * x[2] + x[3] * x[3]);
     }
@@ -265,19 +265,17 @@ calc_sfb_noise_x34(const FLOAT * xr, const FLOAT * xr34, unsigned int bw, uint8_
 }
 
 
-
 struct calc_noise_cache {
-    int     valid;
-    FLOAT   value;
+    int valid;
+    FLOAT value;
 };
 
 typedef struct calc_noise_cache calc_noise_cache_t;
 
 
-static  uint8_t
-tri_calc_sfb_noise_x34(const FLOAT * xr, const FLOAT * xr34, FLOAT l3_xmin, unsigned int bw,
-                       uint8_t sf, calc_noise_cache_t * did_it)
-{
+static uint8_t
+tri_calc_sfb_noise_x34(const FLOAT *xr, const FLOAT *xr34, FLOAT l3_xmin, unsigned int bw,
+                       uint8_t sf, calc_noise_cache_t *did_it) {
     if (did_it[sf].valid == 0) {
         did_it[sf].valid = 1;
         did_it[sf].value = calc_sfb_noise_x34(xr, xr34, bw, sf);
@@ -314,15 +312,14 @@ tri_calc_sfb_noise_x34(const FLOAT * xr, const FLOAT * xr34, FLOAT l3_xmin, unsi
  *  calculates quantization step size determined by allowed masking
  */
 static int
-calc_scalefac(FLOAT l3_xmin, int bw)
-{
+calc_scalefac(FLOAT l3_xmin, int bw) {
     FLOAT const c = 5.799142446; /* 10 * 10^(2/3) * log10(4/3) */
     return 210 + (int) (c * log10f(l3_xmin / bw) - .5f);
 }
 
 static uint8_t
-guess_scalefac_x34(const FLOAT * xr, const FLOAT * xr34, FLOAT l3_xmin, unsigned int bw, uint8_t sf_min)
-{
+guess_scalefac_x34(const FLOAT *xr, const FLOAT *xr34, FLOAT l3_xmin, unsigned int bw,
+                   uint8_t sf_min) {
     int const guess = calc_scalefac(l3_xmin, bw);
     if (guess < sf_min) return sf_min;
     if (guess >= 255) return 255;
@@ -343,10 +340,9 @@ guess_scalefac_x34(const FLOAT * xr, const FLOAT * xr34, FLOAT l3_xmin, unsigned
  * per band (shaping the noise).
  */
 
-static  uint8_t
-find_scalefac_x34(const FLOAT * xr, const FLOAT * xr34, FLOAT l3_xmin, unsigned int bw,
-                  uint8_t sf_min)
-{
+static uint8_t
+find_scalefac_x34(const FLOAT *xr, const FLOAT *xr34, FLOAT l3_xmin, unsigned int bw,
+                  uint8_t sf_min) {
     calc_noise_cache_t did_it[256];
     uint8_t sf = 128, sf_ok = 255, delsf = 128, seen_good_one = 0, i;
     memset(did_it, 0, sizeof(did_it));
@@ -354,13 +350,11 @@ find_scalefac_x34(const FLOAT * xr, const FLOAT * xr34, FLOAT l3_xmin, unsigned 
         delsf >>= 1;
         if (sf <= sf_min) {
             sf += delsf;
-        }
-        else {
+        } else {
             uint8_t const bad = tri_calc_sfb_noise_x34(xr, xr34, l3_xmin, bw, sf, did_it);
             if (bad) {  /* distortion.  try a smaller scalefactor */
                 sf -= delsf;
-            }
-            else {
+            } else {
                 sf_ok = sf;
                 sf += delsf;
                 seen_good_one = 1;
@@ -392,16 +386,15 @@ find_scalefac_x34(const FLOAT * xr, const FLOAT * xr34, FLOAT l3_xmin, unsigned 
 
 /* a variation for vbr-mtrh */
 static int
-block_sf(algo_t * that, const FLOAT l3_xmin[SFBMAX], int vbrsf[SFBMAX], int vbrsfmin[SFBMAX])
-{
-    FLOAT   max_xr34;
+block_sf(algo_t *that, const FLOAT l3_xmin[SFBMAX], int vbrsf[SFBMAX], int vbrsfmin[SFBMAX]) {
+    FLOAT max_xr34;
     const FLOAT *const xr = &that->cod_info->xr[0];
     const FLOAT *const xr34_orig = &that->xr34orig[0];
     const int *const width = &that->cod_info->width[0];
     const char *const energy_above_cutoff = &that->cod_info->energy_above_cutoff[0];
     unsigned int const max_nonzero_coeff = (unsigned int) that->cod_info->max_nonzero_coeff;
     uint8_t maxsf = 0;
-    int     sfb = 0, m_o = -1;
+    int sfb = 0, m_o = -1;
     unsigned int j = 0, i = 0;
     int const psymax = that->cod_info->psymax;
 
@@ -432,7 +425,8 @@ block_sf(algo_t * that, const FLOAT l3_xmin[SFBMAX], int vbrsf[SFBMAX], int vbrs
         if (++i > 2) {
             i = 0;
         }
-        if (sfb < psymax && w > 2) { /* mpeg2.5 at 8 kHz doesn't use all scalefactors, unused have width 2 */
+        if (sfb < psymax &&
+            w > 2) { /* mpeg2.5 at 8 kHz doesn't use all scalefactors, unused have width 2 */
             if (energy_above_cutoff[sfb]) {
                 m2 = that->find(&xr[j], &xr34_orig[j], l3_xmin[sfb], l, m1);
 #if 0
@@ -453,13 +447,11 @@ block_sf(algo_t * that, const FLOAT l3_xmin[SFBMAX], int vbrsf[SFBMAX], int vbrs
                 if (m_o < m2 && m2 < 255) {
                     m_o = m2;
                 }
-            }
-            else {
+            } else {
                 m2 = 255;
                 maxsf = 255;
             }
-        }
-        else {
+        } else {
             if (maxsf < m1) {
                 maxsf = m1;
             }
@@ -467,7 +459,7 @@ block_sf(algo_t * that, const FLOAT l3_xmin[SFBMAX], int vbrsf[SFBMAX], int vbrs
         }
         vbrsf[sfb] = m2;
         ++sfb;
-        j += w;        
+        j += w;
     }
     for (; sfb < SFBMAX; ++sfb) {
         vbrsf[sfb] = maxsf;
@@ -485,7 +477,6 @@ block_sf(algo_t * that, const FLOAT l3_xmin[SFBMAX], int vbrsf[SFBMAX], int vbrs
 }
 
 
-
 /***********************************************************************
  *
  *  quantize xr34 based on scalefactors
@@ -498,13 +489,12 @@ block_sf(algo_t * that, const FLOAT l3_xmin[SFBMAX], int vbrsf[SFBMAX], int vbrs
  ***********************************************************************/
 
 static void
-quantize_x34(const algo_t * that)
-{
+quantize_x34(const algo_t *that) {
     DOUBLEX x[4];
     const FLOAT *xr34_orig = that->xr34orig;
     gr_info *const cod_info = that->cod_info;
     int const ifqstep = (cod_info->scalefac_scale == 0) ? 2 : 4;
-    int    *l3 = cod_info->l3_enc;
+    int *l3 = cod_info->l3_enc;
     unsigned int j = 0, sfb = 0;
     unsigned int const max_nonzero_coeff = (unsigned int) cod_info->max_nonzero_coeff;
 
@@ -513,8 +503,8 @@ quantize_x34(const algo_t * that)
 
     while (j <= max_nonzero_coeff) {
         int const s =
-            (cod_info->scalefac[sfb] + (cod_info->preflag ? pretab[sfb] : 0)) * ifqstep
-            + cod_info->subblock_gain[cod_info->window[sfb]] * 8;
+                (cod_info->scalefac[sfb] + (cod_info->preflag ? pretab[sfb] : 0)) * ifqstep
+                + cod_info->subblock_gain[cod_info->window[sfb]] * 8;
         uint8_t const sfac = (uint8_t) (cod_info->global_gain - s);
         FLOAT const sfpow34 = ipow20[sfac];
         unsigned int const w = (unsigned int) cod_info->width[sfb];
@@ -525,7 +515,7 @@ quantize_x34(const algo_t * that)
         assert(cod_info->width[sfb] >= 0);
         j += w;
         ++sfb;
-        
+
         i = (w <= m) ? w : m;
         remaining = (i & 0x03u);
         i >>= 2u;
@@ -544,18 +534,24 @@ quantize_x34(const algo_t * that)
         if (remaining) {
             int tmp_l3[4];
             x[0] = x[1] = x[2] = x[3] = 0;
-            switch( remaining ) {
-            case 3: x[2] = sfpow34 * xr34_orig[2];
-            case 2: x[1] = sfpow34 * xr34_orig[1];
-            case 1: x[0] = sfpow34 * xr34_orig[0];
+            switch (remaining) {
+                case 3:
+                    x[2] = sfpow34 * xr34_orig[2];
+                case 2:
+                    x[1] = sfpow34 * xr34_orig[1];
+                case 1:
+                    x[0] = sfpow34 * xr34_orig[0];
             }
 
             k_34_4(x, tmp_l3);
 
-            switch( remaining ) {
-            case 3: l3[2] = tmp_l3[2];
-            case 2: l3[1] = tmp_l3[1];
-            case 1: l3[0] = tmp_l3[0];
+            switch (remaining) {
+                case 3:
+                    l3[2] = tmp_l3[2];
+                case 2:
+                    l3[1] = tmp_l3[1];
+                case 1:
+                    l3[0] = tmp_l3[0];
             }
 
             l3 += remaining;
@@ -565,21 +561,19 @@ quantize_x34(const algo_t * that)
 }
 
 
-
 static const uint8_t max_range_short[SBMAX_s * 3] = {
-    15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    0, 0, 0
+        15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+        0, 0, 0
 };
 
 static const uint8_t max_range_long[SBMAX_l] = {
-    15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0
+        15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0
 };
 
 static const uint8_t max_range_long_lsf_pretab[SBMAX_l] = {
-    7, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        7, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
-
 
 
 /*
@@ -593,22 +587,21 @@ static const uint8_t max_range_long_lsf_pretab[SBMAX_l] = {
 */
 
 static void
-set_subblock_gain(gr_info * cod_info, const int mingain_s[3], int sf[])
-{
+set_subblock_gain(gr_info *cod_info, const int mingain_s[3], int sf[]) {
     const int maxrange1 = 15, maxrange2 = 7;
     const int ifqstepShift = (cod_info->scalefac_scale == 0) ? 1 : 2;
-    int    *const sbg = cod_info->subblock_gain;
+    int *const sbg = cod_info->subblock_gain;
     unsigned int const psymax = (unsigned int) cod_info->psymax;
     unsigned int psydiv = 18;
-    int     sbg0, sbg1, sbg2;
+    int sbg0, sbg1, sbg2;
     unsigned int sfb, i;
-    int     min_sbg = 7;
+    int min_sbg = 7;
 
     if (psydiv > psymax) {
         psydiv = psymax;
     }
     for (i = 0; i < 3; ++i) {
-        int     maxsf1 = 0, maxsf2 = 0, minsf = 1000;
+        int maxsf1 = 0, maxsf2 = 0, minsf = 1000;
         /* see if we should use subblock gain */
         for (sfb = i; sfb < psydiv; sfb += 3) { /* part 1 */
             int const v = -sf[sfb];
@@ -641,8 +634,7 @@ set_subblock_gain(gr_info * cod_info, const int mingain_s[3], int sf[])
         }
         if (minsf > 0) {
             sbg[i] = minsf >> 3;
-        }
-        else {
+        } else {
             sbg[i] = 0;
         }
         if (maxsf1 > 0) {
@@ -677,7 +669,6 @@ set_subblock_gain(gr_info * cod_info, const int mingain_s[3], int sf[])
 }
 
 
-
 /*
 	  ifqstep = ( cod_info->scalefac_scale == 0 ) ? 2 : 4;
 	  ol_sf =  (cod_info->global_gain-210.0);
@@ -686,13 +677,12 @@ set_subblock_gain(gr_info * cod_info, const int mingain_s[3], int sf[])
 	  ol_sf -= ifqstep*pretab[sfb];
 */
 static void
-set_scalefacs(gr_info * cod_info, const int *vbrsfmin, int sf[], const uint8_t * max_range)
-{
+set_scalefacs(gr_info *cod_info, const int *vbrsfmin, int sf[], const uint8_t *max_range) {
     const int ifqstep = (cod_info->scalefac_scale == 0) ? 2 : 4;
     const int ifqstepShift = (cod_info->scalefac_scale == 0) ? 1 : 2;
-    int    *const scalefac = cod_info->scalefac;
+    int *const scalefac = cod_info->scalefac;
     int const sfbmax = cod_info->sfbmax;
-    int     sfb;
+    int sfb;
     int const *const sbg = cod_info->subblock_gain;
     int const *const window = cod_info->window;
     int const preflag = cod_info->preflag;
@@ -704,7 +694,7 @@ set_scalefacs(gr_info * cod_info, const int *vbrsfmin, int sf[], const uint8_t *
     }
     for (sfb = 0; sfb < sfbmax; ++sfb) {
         int const gain = cod_info->global_gain - (sbg[window[sfb]] * 8)
-            - ((preflag ? pretab[sfb] : 0) * ifqstep);
+                         - ((preflag ? pretab[sfb] : 0) * ifqstep);
 
         if (sf[sfb] < 0) {
             int const m = gain - vbrsfmin[sfb];
@@ -717,8 +707,7 @@ set_scalefacs(gr_info * cod_info, const int *vbrsfmin, int sf[], const uint8_t *
             if (scalefac[sfb] > 0 && (scalefac[sfb] << ifqstepShift) > m) {
                 scalefac[sfb] = m >> ifqstepShift;
             }
-        }
-        else {
+        } else {
             scalefac[sfb] = 0;
         }
     }
@@ -729,16 +718,16 @@ set_scalefacs(gr_info * cod_info, const int *vbrsfmin, int sf[], const uint8_t *
 
 
 #ifndef NDEBUG
+
 static int
-checkScalefactor(const gr_info * cod_info, const int vbrsfmin[SFBMAX])
-{
+checkScalefactor(const gr_info *cod_info, const int vbrsfmin[SFBMAX]) {
     int const ifqstep = cod_info->scalefac_scale == 0 ? 2 : 4;
-    int     sfb;
+    int sfb;
     for (sfb = 0; sfb < cod_info->psymax; ++sfb) {
         const int s =
-            ((cod_info->scalefac[sfb] +
-              (cod_info->preflag ? pretab[sfb] : 0)) * ifqstep) +
-            cod_info->subblock_gain[cod_info->window[sfb]] * 8;
+                ((cod_info->scalefac[sfb] +
+                  (cod_info->preflag ? pretab[sfb] : 0)) * ifqstep) +
+                cod_info->subblock_gain[cod_info->window[sfb]] * 8;
 
         if ((cod_info->global_gain - s) < vbrsfmin[sfb]) {
             /*
@@ -757,6 +746,7 @@ checkScalefactor(const gr_info * cod_info, const int vbrsfmin[SFBMAX])
     }
     return 1;
 }
+
 #endif
 
 
@@ -767,16 +757,15 @@ checkScalefactor(const gr_info * cod_info, const int vbrsfmin[SFBMAX])
  ******************************************************************/
 
 static void
-short_block_constrain(const algo_t * that, const int vbrsf[SFBMAX],
-                      const int vbrsfmin[SFBMAX], int vbrmax)
-{
+short_block_constrain(const algo_t *that, const int vbrsf[SFBMAX],
+                      const int vbrsfmin[SFBMAX], int vbrmax) {
     gr_info *const cod_info = that->cod_info;
     lame_internal_flags const *const gfc = that->gfc;
     SessionConfig_t const *const cfg = &gfc->cfg;
     int const maxminsfb = that->mingain_l;
-    int     mover, maxover0 = 0, maxover1 = 0, delta = 0;
-    int     v, v0, v1;
-    int     sfb;
+    int mover, maxover0 = 0, maxover1 = 0, delta = 0;
+    int v, v0, v1;
+    int sfb;
     int const psymax = cod_info->psymax;
 
     for (sfb = 0; sfb < psymax; ++sfb) {
@@ -797,8 +786,7 @@ short_block_constrain(const algo_t * that, const int vbrsf[SFBMAX],
     if (cfg->noise_shaping == 2) {
         /* allow scalefac_scale=1 */
         mover = Min(maxover0, maxover1);
-    }
-    else {
+    } else {
         mover = maxover0;
     }
     if (delta > mover) {
@@ -810,8 +798,7 @@ short_block_constrain(const algo_t * that, const int vbrsf[SFBMAX],
 
     if (maxover0 == 0) {
         cod_info->scalefac_scale = 0;
-    }
-    else if (maxover1 == 0) {
+    } else if (maxover1 == 0) {
         cod_info->scalefac_scale = 1;
     }
     if (vbrmax < maxminsfb) {
@@ -821,12 +808,11 @@ short_block_constrain(const algo_t * that, const int vbrsf[SFBMAX],
 
     if (cod_info->global_gain < 0) {
         cod_info->global_gain = 0;
-    }
-    else if (cod_info->global_gain > 255) {
+    } else if (cod_info->global_gain > 255) {
         cod_info->global_gain = 255;
     }
     {
-        int     sf_temp[SFBMAX];
+        int sf_temp[SFBMAX];
         for (sfb = 0; sfb < SFBMAX; ++sfb) {
             sf_temp[sfb] = vbrsf[sfb] - vbrmax;
         }
@@ -837,7 +823,6 @@ short_block_constrain(const algo_t * that, const int vbrsf[SFBMAX],
 }
 
 
-
 /******************************************************************
  *
  *  long block scalefacs
@@ -845,17 +830,16 @@ short_block_constrain(const algo_t * that, const int vbrsf[SFBMAX],
  ******************************************************************/
 
 static void
-long_block_constrain(const algo_t * that, const int vbrsf[SFBMAX], const int vbrsfmin[SFBMAX],
-                     int vbrmax)
-{
+long_block_constrain(const algo_t *that, const int vbrsf[SFBMAX], const int vbrsfmin[SFBMAX],
+                     int vbrmax) {
     gr_info *const cod_info = that->cod_info;
     lame_internal_flags const *const gfc = that->gfc;
     SessionConfig_t const *const cfg = &gfc->cfg;
     uint8_t const *max_rangep;
     int const maxminsfb = that->mingain_l;
-    int     sfb;
-    int     maxover0, maxover1, maxover0p, maxover1p, mover, delta = 0;
-    int     v, v0, v1, v0p, v1p, vm0p = 1, vm1p = 1;
+    int sfb;
+    int maxover0, maxover1, maxover0p, maxover1p, mover, delta = 0;
+    int v, v0, v1, v0p, v1p, vm0p = 1, vm1p = 1;
     int const psymax = cod_info->psymax;
 
     max_rangep = cfg->mode_gr == 2 ? max_range_long : max_range_long_lsf_pretab;
@@ -889,7 +873,7 @@ long_block_constrain(const algo_t * that, const int vbrsf[SFBMAX], const int vbr
         }
     }
     if (vm0p == 1) {
-        int     gain = vbrmax - maxover0p;
+        int gain = vbrmax - maxover0p;
         if (gain < maxminsfb) {
             gain = maxminsfb;
         }
@@ -903,7 +887,7 @@ long_block_constrain(const algo_t * that, const int vbrsf[SFBMAX], const int vbr
         }
     }
     if (vm1p == 1) {
-        int     gain = vbrmax - maxover1p;
+        int gain = vbrmax - maxover1p;
         if (gain < maxminsfb) {
             gain = maxminsfb;
         }
@@ -945,32 +929,27 @@ long_block_constrain(const algo_t * that, const int vbrsf[SFBMAX], const int vbr
         cod_info->scalefac_scale = 0;
         cod_info->preflag = 0;
         max_rangep = max_range_long;
-    }
-    else if (maxover0p == 0) {
+    } else if (maxover0p == 0) {
         cod_info->scalefac_scale = 0;
         cod_info->preflag = 1;
-    }
-    else if (maxover1 == 0) {
+    } else if (maxover1 == 0) {
         cod_info->scalefac_scale = 1;
         cod_info->preflag = 0;
         max_rangep = max_range_long;
-    }
-    else if (maxover1p == 0) {
+    } else if (maxover1p == 0) {
         cod_info->scalefac_scale = 1;
         cod_info->preflag = 1;
-    }
-    else {
+    } else {
         assert(0);      /* this should not happen */
     }
     cod_info->global_gain = vbrmax;
     if (cod_info->global_gain < 0) {
         cod_info->global_gain = 0;
-    }
-    else if (cod_info->global_gain > 255) {
+    } else if (cod_info->global_gain > 255) {
         cod_info->global_gain = 255;
     }
     {
-        int     sf_temp[SFBMAX];
+        int sf_temp[SFBMAX];
         for (sfb = 0; sfb < SFBMAX; ++sfb) {
             sf_temp[sfb] = vbrsf[sfb] - vbrmax;
         }
@@ -980,11 +959,9 @@ long_block_constrain(const algo_t * that, const int vbrsf[SFBMAX], const int vbr
 }
 
 
-
 static void
-bitcount(const algo_t * that)
-{
-    int     rc = scale_bitcount(that->gfc, that->cod_info);
+bitcount(const algo_t *that) {
+    int rc = scale_bitcount(that->gfc, that->cod_info);
 
     if (rc == 0) {
         return;
@@ -995,26 +972,20 @@ bitcount(const algo_t * that)
 }
 
 
-
 static int
-quantizeAndCountBits(const algo_t * that)
-{
+quantizeAndCountBits(const algo_t *that) {
     quantize_x34(that);
     that->cod_info->part2_3_length = noquant_count_bits(that->gfc, that->cod_info, 0);
     return that->cod_info->part2_3_length;
 }
 
 
-
-
-
 static int
-tryGlobalStepsize(const algo_t * that, const int sfwork[SFBMAX],
-                  const int vbrsfmin[SFBMAX], int delta)
-{
+tryGlobalStepsize(const algo_t *that, const int sfwork[SFBMAX],
+                  const int vbrsfmin[SFBMAX], int delta) {
     FLOAT const xrpow_max = that->cod_info->xrpow_max;
-    int     sftemp[SFBMAX], i, nbits;
-    int     gain, vbrmax = 0;
+    int sftemp[SFBMAX], i, nbits;
+    int gain, vbrmax = 0;
     for (i = 0; i < SFBMAX; ++i) {
         gain = sfwork[i] + delta;
         if (gain < vbrsfmin[i]) {
@@ -1036,17 +1007,15 @@ tryGlobalStepsize(const algo_t * that, const int sfwork[SFBMAX],
 }
 
 
-
 static void
-searchGlobalStepsizeMax(const algo_t * that, const int sfwork[SFBMAX],
-                        const int vbrsfmin[SFBMAX], int target)
-{
+searchGlobalStepsizeMax(const algo_t *that, const int sfwork[SFBMAX],
+                        const int vbrsfmin[SFBMAX], int target) {
     gr_info const *const cod_info = that->cod_info;
     const int gain = cod_info->global_gain;
-    int     curr = gain;
-    int     gain_ok = 1024;
-    int     nbits = LARGE_BITS;
-    int     l = gain, r = 512;
+    int curr = gain;
+    int gain_ok = 1024;
+    int nbits = LARGE_BITS;
+    int l = gain, r = 512;
 
     assert(gain >= 0);
     while (l <= r) {
@@ -1055,8 +1024,7 @@ searchGlobalStepsizeMax(const algo_t * that, const int sfwork[SFBMAX],
         if (nbits == 0 || (nbits + cod_info->part2_length) < target) {
             r = curr - 1;
             gain_ok = curr;
-        }
-        else {
+        } else {
             l = curr + 1;
             if (gain_ok == 1024) {
                 gain_ok = curr;
@@ -1070,11 +1038,9 @@ searchGlobalStepsizeMax(const algo_t * that, const int sfwork[SFBMAX],
 }
 
 
-
 static int
-sfDepth(const int sfwork[SFBMAX])
-{
-    int     m = 0;
+sfDepth(const int sfwork[SFBMAX]) {
+    int m = 0;
     unsigned int i, j;
     for (j = SFBMAX, i = 0; j > 0; --j, ++i) {
         int const di = 255 - sfwork[i];
@@ -1091,8 +1057,7 @@ sfDepth(const int sfwork[SFBMAX])
 
 
 static void
-cutDistribution(const int sfwork[SFBMAX], int sf_out[SFBMAX], int cut)
-{
+cutDistribution(const int sfwork[SFBMAX], int sf_out[SFBMAX], int cut) {
     unsigned int i, j;
     for (j = SFBMAX, i = 0; j > 0; --j, ++i) {
         int const x = sfwork[i];
@@ -1102,18 +1067,16 @@ cutDistribution(const int sfwork[SFBMAX], int sf_out[SFBMAX], int cut)
 
 
 static int
-flattenDistribution(const int sfwork[SFBMAX], int sf_out[SFBMAX], int dm, int k, int p)
-{
+flattenDistribution(const int sfwork[SFBMAX], int sf_out[SFBMAX], int dm, int k, int p) {
     unsigned int i, j;
-    int     x, sfmax = 0;
+    int x, sfmax = 0;
     if (dm > 0) {
         for (j = SFBMAX, i = 0; j > 0; --j, ++i) {
             int const di = p - sfwork[i];
             x = sfwork[i] + (k * di) / dm;
             if (x < 0) {
                 x = 0;
-            }
-            else {
+            } else {
                 if (x > 255) {
                     x = 255;
                 }
@@ -1123,8 +1086,7 @@ flattenDistribution(const int sfwork[SFBMAX], int sf_out[SFBMAX], int dm, int k,
                 sfmax = x;
             }
         }
-    }
-    else {
+    } else {
         for (j = SFBMAX, i = 0; j > 0u; --j, ++i) {
             x = sfwork[i];
             sf_out[i] = x;
@@ -1138,10 +1100,9 @@ flattenDistribution(const int sfwork[SFBMAX], int sf_out[SFBMAX], int dm, int k,
 
 
 static int
-tryThatOne(algo_t const* that, const int sftemp[SFBMAX], const int vbrsfmin[SFBMAX], int vbrmax)
-{
+tryThatOne(algo_t const *that, const int sftemp[SFBMAX], const int vbrsfmin[SFBMAX], int vbrmax) {
     FLOAT const xrpow_max = that->cod_info->xrpow_max;
-    int     nbits = LARGE_BITS;
+    int nbits = LARGE_BITS;
     that->alloc(that, sftemp, vbrsfmin, vbrmax);
     bitcount(that);
     nbits = quantizeAndCountBits(that);
@@ -1152,33 +1113,31 @@ tryThatOne(algo_t const* that, const int sftemp[SFBMAX], const int vbrsfmin[SFBM
 
 
 static void
-outOfBitsStrategy(algo_t const* that, const int sfwork[SFBMAX], const int vbrsfmin[SFBMAX], int target)
-{
-    int     wrk[SFBMAX];
+outOfBitsStrategy(algo_t const *that, const int sfwork[SFBMAX], const int vbrsfmin[SFBMAX],
+                  int target) {
+    int wrk[SFBMAX];
     int const dm = sfDepth(sfwork);
     int const p = that->cod_info->global_gain;
-    int     nbits;
+    int nbits;
 
     /* PART 1 */
     {
-        int     bi = dm / 2;
-        int     bi_ok = -1;
-        int     bu = 0;
-        int     bo = dm;
+        int bi = dm / 2;
+        int bi_ok = -1;
+        int bu = 0;
+        int bo = dm;
         for (;;) {
             int const sfmax = flattenDistribution(sfwork, wrk, dm, bi, p);
             nbits = tryThatOne(that, wrk, vbrsfmin, sfmax);
             if (nbits <= target) {
                 bi_ok = bi;
                 bo = bi - 1;
-            }
-            else {
+            } else {
                 bu = bi + 1;
             }
             if (bu <= bo) {
                 bi = (bu + bo) / 2;
-            }
-            else {
+            } else {
                 break;
             }
         }
@@ -1193,24 +1152,22 @@ outOfBitsStrategy(algo_t const* that, const int sfwork[SFBMAX], const int vbrsfm
 
     /* PART 2: */
     {
-        int     bi = (255 + p) / 2;
-        int     bi_ok = -1;
-        int     bu = p;
-        int     bo = 255;
+        int bi = (255 + p) / 2;
+        int bi_ok = -1;
+        int bu = p;
+        int bo = 255;
         for (;;) {
             int const sfmax = flattenDistribution(sfwork, wrk, dm, dm, bi);
             nbits = tryThatOne(that, wrk, vbrsfmin, sfmax);
             if (nbits <= target) {
                 bi_ok = bi;
                 bo = bi - 1;
-            }
-            else {
+            } else {
                 bu = bi + 1;
             }
             if (bu <= bo) {
                 bi = (bu + bo) / 2;
-            }
-            else {
+            } else {
                 break;
             }
         }
@@ -1229,12 +1186,11 @@ outOfBitsStrategy(algo_t const* that, const int sfwork[SFBMAX], const int vbrsfm
 
 
 static int
-reduce_bit_usage(lame_internal_flags * gfc, int gr, int ch
+reduce_bit_usage(lame_internal_flags *gfc, int gr, int ch
 #if 0
-                 , const FLOAT xr34orig[576], const FLOAT l3_xmin[SFBMAX], int maxbits
+        , const FLOAT xr34orig[576], const FLOAT l3_xmin[SFBMAX], int maxbits
 #endif
-    )
-{
+) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     gr_info *const cod_info = &gfc->l3_side.tt[gr][ch];
     /*  try some better scalefac storage
@@ -1249,27 +1205,25 @@ reduce_bit_usage(lame_internal_flags * gfc, int gr, int ch
 }
 
 
-
-
 int
-VBR_encode_frame(lame_internal_flags * gfc, const FLOAT xr34orig[2][2][576],
-                 const FLOAT l3_xmin[2][2][SFBMAX], const int max_bits[2][2])
-{
+VBR_encode_frame(lame_internal_flags *gfc, const FLOAT xr34orig[2][2][576],
+                 const FLOAT l3_xmin[2][2][SFBMAX], const int max_bits[2][2]) {
     SessionConfig_t const *const cfg = &gfc->cfg;
-    int     sfwork_[2][2][SFBMAX];
-    int     vbrsfmin_[2][2][SFBMAX];
-    algo_t  that_[2][2];
+    int sfwork_[2][2][SFBMAX];
+    int vbrsfmin_[2][2][SFBMAX];
+    algo_t that_[2][2];
     int const ngr = cfg->mode_gr;
     int const nch = cfg->channels_out;
-    int     max_nbits_ch[2][2] = {{0, 0}, {0 ,0}};
-    int     max_nbits_gr[2] = {0, 0};
-    int     max_nbits_fr = 0;
-    int     use_nbits_ch[2][2] = {{MAX_BITS_PER_CHANNEL+1, MAX_BITS_PER_CHANNEL+1}
-                                 ,{MAX_BITS_PER_CHANNEL+1, MAX_BITS_PER_CHANNEL+1}};
-    int     use_nbits_gr[2] = { MAX_BITS_PER_GRANULE+1, MAX_BITS_PER_GRANULE+1 };
-    int     use_nbits_fr = MAX_BITS_PER_GRANULE+MAX_BITS_PER_GRANULE;
-    int     gr, ch;
-    int     ok, sum_fr;
+    int max_nbits_ch[2][2] = {{0, 0},
+                              {0, 0}};
+    int max_nbits_gr[2] = {0, 0};
+    int max_nbits_fr = 0;
+    int use_nbits_ch[2][2] = {{MAX_BITS_PER_CHANNEL + 1, MAX_BITS_PER_CHANNEL + 1},
+                              {MAX_BITS_PER_CHANNEL + 1, MAX_BITS_PER_CHANNEL + 1}};
+    int use_nbits_gr[2] = {MAX_BITS_PER_GRANULE + 1, MAX_BITS_PER_GRANULE + 1};
+    int use_nbits_fr = MAX_BITS_PER_GRANULE + MAX_BITS_PER_GRANULE;
+    int gr, ch;
+    int ok, sum_fr;
 
     /* set up some encoding parameters
      */
@@ -1280,14 +1234,14 @@ VBR_encode_frame(lame_internal_flags * gfc, const FLOAT xr34orig[2][2][576],
             use_nbits_ch[gr][ch] = 0;
             max_nbits_gr[gr] += max_bits[gr][ch];
             max_nbits_fr += max_bits[gr][ch];
-            that_[gr][ch].find = (cfg->full_outer_loop < 0) ? guess_scalefac_x34 : find_scalefac_x34;
+            that_[gr][ch].find = (cfg->full_outer_loop < 0) ? guess_scalefac_x34
+                                                            : find_scalefac_x34;
             that_[gr][ch].gfc = gfc;
             that_[gr][ch].cod_info = &gfc->l3_side.tt[gr][ch];
             that_[gr][ch].xr34orig = xr34orig[gr][ch];
             if (that_[gr][ch].cod_info->block_type == SHORT_TYPE) {
                 that_[gr][ch].alloc = short_block_constrain;
-            }
-            else {
+            } else {
                 that_[gr][ch].alloc = long_block_constrain;
             }
         }               /* for ch */
@@ -1298,15 +1252,14 @@ VBR_encode_frame(lame_internal_flags * gfc, const FLOAT xr34orig[2][2][576],
         for (ch = 0; ch < nch; ++ch) {
             if (max_bits[gr][ch] > 0) {
                 algo_t *that = &that_[gr][ch];
-                int    *sfwork = sfwork_[gr][ch];
-                int    *vbrsfmin = vbrsfmin_[gr][ch];
-                int     vbrmax;
+                int *sfwork = sfwork_[gr][ch];
+                int *vbrsfmin = vbrsfmin_[gr][ch];
+                int vbrmax;
 
                 vbrmax = block_sf(that, l3_xmin[gr][ch], sfwork, vbrsfmin);
                 that->alloc(that, sfwork, vbrsfmin, vbrmax);
                 bitcount(that);
-            }
-            else {
+            } else {
                 /*  xr contains no energy 
                  *  l3_enc, our encoding data, will be quantized to zero
                  *  continue with next channel
@@ -1324,8 +1277,7 @@ VBR_encode_frame(lame_internal_flags * gfc, const FLOAT xr34orig[2][2][576],
             if (max_bits[gr][ch] > 0) {
                 memset(&that->cod_info->l3_enc[0], 0, sizeof(that->cod_info->l3_enc));
                 (void) quantizeAndCountBits(that);
-            }
-            else {
+            } else {
                 /*  xr contains no energy 
                  *  l3_enc, our encoding data, will be quantized to zero
                  *  continue with next channel
@@ -1365,7 +1317,7 @@ VBR_encode_frame(lame_internal_flags * gfc, const FLOAT xr34orig[2][2][576],
             return use_nbits_fr;
         }
     }
-    
+
     /* OK, we are in trouble and have to define how many bits are
      * to be used for each granule
      */
@@ -1378,28 +1330,25 @@ VBR_encode_frame(lame_internal_flags * gfc, const FLOAT xr34orig[2][2][576],
             for (ch = 0; ch < nch; ++ch) {
                 if (use_nbits_ch[gr][ch] > MAX_BITS_PER_CHANNEL) {
                     max_nbits_ch[gr][ch] = MAX_BITS_PER_CHANNEL;
-                }
-                else {
+                } else {
                     max_nbits_ch[gr][ch] = use_nbits_ch[gr][ch];
                 }
                 max_nbits_gr[gr] += max_nbits_ch[gr][ch];
             }
             if (max_nbits_gr[gr] > MAX_BITS_PER_GRANULE) {
-                float   f[2] = {0.0f, 0.0f}, s = 0.0f;
+                float f[2] = {0.0f, 0.0f}, s = 0.0f;
                 for (ch = 0; ch < nch; ++ch) {
                     if (max_nbits_ch[gr][ch] > 0) {
                         f[ch] = sqrt(sqrt(max_nbits_ch[gr][ch]));
                         s += f[ch];
-                    }
-                    else {
+                    } else {
                         f[ch] = 0;
                     }
                 }
                 for (ch = 0; ch < nch; ++ch) {
                     if (s > 0) {
                         max_nbits_ch[gr][ch] = MAX_BITS_PER_GRANULE * f[ch] / s;
-                    }
-                    else {
+                    } else {
                         max_nbits_ch[gr][ch] = 0;
                     }
                 }
@@ -1430,21 +1379,19 @@ VBR_encode_frame(lame_internal_flags * gfc, const FLOAT xr34orig[2][2][576],
         }
         if (sum_fr > max_nbits_fr) {
             {
-                float   f[2] = {0.0f, 0.0f}, s = 0.0f;
+                float f[2] = {0.0f, 0.0f}, s = 0.0f;
                 for (gr = 0; gr < ngr; ++gr) {
                     if (max_nbits_gr[gr] > 0) {
                         f[gr] = sqrt(max_nbits_gr[gr]);
                         s += f[gr];
-                    }
-                    else {
+                    } else {
                         f[gr] = 0;
                     }
                 }
                 for (gr = 0; gr < ngr; ++gr) {
                     if (s > 0) {
                         max_nbits_gr[gr] = max_nbits_fr * f[gr] / s;
-                    }
-                    else {
+                    } else {
                         max_nbits_gr[gr] = 0;
                     }
                 }
@@ -1467,21 +1414,19 @@ VBR_encode_frame(lame_internal_flags * gfc, const FLOAT xr34orig[2][2][576],
                 }
             }
             for (gr = 0; gr < ngr; ++gr) {
-                float   f[2] = {0.0f, 0.0f}, s = 0.0f;
+                float f[2] = {0.0f, 0.0f}, s = 0.0f;
                 for (ch = 0; ch < nch; ++ch) {
                     if (max_nbits_ch[gr][ch] > 0) {
                         f[ch] = sqrt(max_nbits_ch[gr][ch]);
                         s += f[ch];
-                    }
-                    else {
+                    } else {
                         f[ch] = 0;
                     }
                 }
                 for (ch = 0; ch < nch; ++ch) {
                     if (s > 0) {
                         max_nbits_ch[gr][ch] = max_nbits_gr[gr] * f[ch] / s;
-                    }
-                    else {
+                    } else {
                         max_nbits_ch[gr][ch] = 0;
                     }
                 }
@@ -1507,7 +1452,7 @@ VBR_encode_frame(lame_internal_flags * gfc, const FLOAT xr34orig[2][2][576],
         /* sanity check */
         sum_fr = 0;
         for (gr = 0; gr < ngr; ++gr) {
-            int     sum_gr = 0;
+            int sum_gr = 0;
             for (ch = 0; ch < nch; ++ch) {
                 sum_gr += max_nbits_ch[gr][ch];
                 if (max_nbits_ch[gr][ch] > MAX_BITS_PER_CHANNEL) {
@@ -1556,7 +1501,7 @@ VBR_encode_frame(lame_internal_flags * gfc, const FLOAT xr34orig[2][2][576],
             algo_t const *that = &that_[gr][ch];
             use_nbits_ch[gr][ch] = 0;
             if (max_bits[gr][ch] > 0) {
-                int    *sfwork = sfwork_[gr][ch];
+                int *sfwork = sfwork_[gr][ch];
                 int const *vbrsfmin = vbrsfmin_[gr][ch];
                 cutDistribution(sfwork, sfwork, that->cod_info->global_gain);
                 outOfBitsStrategy(that, sfwork, vbrsfmin, max_nbits_ch[gr][ch]);
@@ -1575,6 +1520,6 @@ VBR_encode_frame(lame_internal_flags * gfc, const FLOAT xr34orig[2][2][576],
     }
 
     ERRORF(gfc, "INTERNAL ERROR IN VBR NEW CODE (1313), please send bug report\n"
-           "maxbits=%d usedbits=%d\n", max_nbits_fr, use_nbits_fr);
+                "maxbits=%d usedbits=%d\n", max_nbits_fr, use_nbits_fr);
     exit(-1);
 }

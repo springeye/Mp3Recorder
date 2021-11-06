@@ -49,43 +49,43 @@
   [table_number][row_in_table][column of nr_of_sfb]
 */
 const int nr_of_sfb_block[6][3][4] = {
-    {
-     {6, 5, 5, 5},
-     {9, 9, 9, 9},
-     {6, 9, 9, 9}
-     },
-    {
-     {6, 5, 7, 3},
-     {9, 9, 12, 6},
-     {6, 9, 12, 6}
-     },
-    {
-     {11, 10, 0, 0},
-     {18, 18, 0, 0},
-     {15, 18, 0, 0}
-     },
-    {
-     {7, 7, 7, 0},
-     {12, 12, 12, 0},
-     {6, 15, 12, 0}
-     },
-    {
-     {6, 6, 6, 3},
-     {12, 9, 9, 6},
-     {6, 12, 9, 6}
-     },
-    {
-     {8, 8, 5, 0},
-     {15, 12, 9, 0},
-     {6, 18, 9, 0}
-     }
+        {
+                {6,  5,  5, 5},
+                {9,  9,  9,  9},
+                {6,  9,  9,  9}
+        },
+        {
+                {6,  5,  7, 3},
+                {9,  9,  12, 6},
+                {6,  9,  12, 6}
+        },
+        {
+                {11, 10, 0, 0},
+                {18, 18, 0,  0},
+                {15, 18, 0,  0}
+        },
+        {
+                {7,  7,  7, 0},
+                {12, 12, 12, 0},
+                {6,  15, 12, 0}
+        },
+        {
+                {6,  6,  6, 3},
+                {12, 9,  9,  6},
+                {6,  12, 9,  6}
+        },
+        {
+                {8,  8,  5, 0},
+                {15, 12, 9,  0},
+                {6,  18, 9,  0}
+        }
 };
 
 
 /* Table B.6: layer3 preemphasis */
 const int pretab[SBMAX_l] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    1, 1, 1, 1, 2, 2, 3, 3, 3, 2, 0
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 1, 1, 2, 2, 3, 3, 3, 2, 0
 };
 
 /*
@@ -98,85 +98,91 @@ const int pretab[SBMAX_l] = {
 
 
 const scalefac_struct sfBandIndex[9] = {
-    {                   /* Table B.2.b: 22.05 kHz */
-     {0, 6, 12, 18, 24, 30, 36, 44, 54, 66, 80, 96, 116, 140, 168, 200, 238, 284, 336, 396, 464,
-      522, 576},
-     {0, 4, 8, 12, 18, 24, 32, 42, 56, 74, 100, 132, 174, 192}
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
-     },
-    {                   /* Table B.2.c: 24 kHz */ /* docs: 332. mpg123(broken): 330 */
-     {0, 6, 12, 18, 24, 30, 36, 44, 54, 66, 80, 96, 114, 136, 162, 194, 232, 278, 332, 394, 464,
-      540, 576},
-     {0, 4, 8, 12, 18, 26, 36, 48, 62, 80, 104, 136, 180, 192}
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
-     },
-    {                   /* Table B.2.a: 16 kHz */
-     {0, 6, 12, 18, 24, 30, 36, 44, 54, 66, 80, 96, 116, 140, 168, 200, 238, 284, 336, 396, 464,
-      522, 576},
-     {0, 4, 8, 12, 18, 26, 36, 48, 62, 80, 104, 134, 174, 192}
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
-     },
-    {                   /* Table B.8.b: 44.1 kHz */
-     {0, 4, 8, 12, 16, 20, 24, 30, 36, 44, 52, 62, 74, 90, 110, 134, 162, 196, 238, 288, 342, 418,
-      576},
-     {0, 4, 8, 12, 16, 22, 30, 40, 52, 66, 84, 106, 136, 192}
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
-     },
-    {                   /* Table B.8.c: 48 kHz */
-     {0, 4, 8, 12, 16, 20, 24, 30, 36, 42, 50, 60, 72, 88, 106, 128, 156, 190, 230, 276, 330, 384,
-      576},
-     {0, 4, 8, 12, 16, 22, 28, 38, 50, 64, 80, 100, 126, 192}
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
-     },
-    {                   /* Table B.8.a: 32 kHz */
-     {0, 4, 8, 12, 16, 20, 24, 30, 36, 44, 54, 66, 82, 102, 126, 156, 194, 240, 296, 364, 448, 550,
-      576},
-     {0, 4, 8, 12, 16, 22, 30, 42, 58, 78, 104, 138, 180, 192}
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
-     },
-    {                   /* MPEG-2.5 11.025 kHz */
-     {0, 6, 12, 18, 24, 30, 36, 44, 54, 66, 80, 96, 116, 140, 168, 200, 238, 284, 336, 396, 464,
-      522, 576},
-     {0 / 3, 12 / 3, 24 / 3, 36 / 3, 54 / 3, 78 / 3, 108 / 3, 144 / 3, 186 / 3, 240 / 3, 312 / 3,
-      402 / 3, 522 / 3, 576 / 3}
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
-     },
-    {                   /* MPEG-2.5 12 kHz */
-     {0, 6, 12, 18, 24, 30, 36, 44, 54, 66, 80, 96, 116, 140, 168, 200, 238, 284, 336, 396, 464,
-      522, 576},
-     {0 / 3, 12 / 3, 24 / 3, 36 / 3, 54 / 3, 78 / 3, 108 / 3, 144 / 3, 186 / 3, 240 / 3, 312 / 3,
-      402 / 3, 522 / 3, 576 / 3}
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
-     },
-    {                   /* MPEG-2.5 8 kHz */
-     {0, 12, 24, 36, 48, 60, 72, 88, 108, 132, 160, 192, 232, 280, 336, 400, 476, 566, 568, 570,
-      572, 574, 576},
-     {0 / 3, 24 / 3, 48 / 3, 72 / 3, 108 / 3, 156 / 3, 216 / 3, 288 / 3, 372 / 3, 480 / 3, 486 / 3,
-      492 / 3, 498 / 3, 576 / 3}
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
-     , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
-     }
+        {                   /* Table B.2.b: 22.05 kHz */
+                {0, 6,  12, 18, 24, 30, 36, 44, 54,  66,  80,  96,  116, 140, 168, 200, 238, 284, 336, 396, 464,
+                                                                                                                 522, 576},
+                {0,     4,      8,      12,     18,      24,      32,      42,      56,      74, 100, 132, 174, 192}, {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
+                , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
+        },
+        {                   /* Table B.2.c: 24 kHz */ /* docs: 332. mpg123(broken): 330 */
+                {0, 6,  12, 18, 24, 30, 36, 44, 54,  66,  80,  96,  114, 136, 162, 194, 232, 278, 332, 394, 464,
+                                                                                                                 540, 576},
+                {0,     4,      8,      12,     18,      26,      36,      48,      62,      80, 104, 136, 180, 192}, {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
+                , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
+        },
+        {                   /* Table B.2.a: 16 kHz */
+                {0, 6,  12, 18, 24, 30, 36, 44, 54,  66,  80,  96,  116, 140, 168, 200, 238, 284, 336, 396, 464,
+                                                                                                                 522, 576},
+                {0,     4,      8,      12,     18,      26,      36,      48,      62,      80, 104, 134, 174, 192}, {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
+                , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
+        },
+        {                   /* Table B.8.b: 44.1 kHz */
+                {0, 4,  8,  12, 16, 20, 24, 30, 36,  44,  52,  62,  74,  90,  110, 134, 162, 196, 238, 288, 342, 418,
+                                                                                                                      576},
+                {0,     4,      8,      12,     16,      22,      30,      40,      52,      66, 84,  106, 136, 192}, {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
+                , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
+        },
+        {                   /* Table B.8.c: 48 kHz */
+                {0, 4,  8,  12, 16, 20, 24, 30, 36,  42,  50,  60,  72,  88,  106, 128, 156, 190, 230, 276, 330, 384,
+                                                                                                                      576},
+                {0,     4,      8,      12,     16,      22,      28,      38,      50,      64, 80,  100, 126, 192}, {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
+                , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
+        },
+        {                   /* Table B.8.a: 32 kHz */
+                {0, 4,  8,  12, 16, 20, 24, 30, 36,  44,  54,  66,  82,  102, 126, 156, 194, 240, 296, 364, 448, 550,
+                                                                                                                      576},
+                {0,     4,      8,      12,     16,      22,      30,      42,      58,      78, 104, 138, 180, 192}, {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
+                , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
+        },
+        {                   /* MPEG-2.5 11.025 kHz */
+                {0, 6,  12, 18, 24, 30, 36, 44, 54,  66,  80,  96,  116, 140, 168, 200, 238, 284, 336, 396, 464,
+                                                                                                                 522, 576},
+                {0 / 3, 12 / 3, 24 / 3, 36 / 3, 54 / 3,  78 / 3,  108 / 3, 144 / 3, 186 / 3, 240 /
+                                                                                             3,  312 /
+                                                                                                 3,
+                                                                                                      402 /
+                                                                                                      3,   522 /
+                                                                                                           3,   576 /
+                                                                                                                3},   {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
+                , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
+        },
+        {                   /* MPEG-2.5 12 kHz */
+                {0, 6,  12, 18, 24, 30, 36, 44, 54,  66,  80,  96,  116, 140, 168, 200, 238, 284, 336, 396, 464,
+                                                                                                                 522, 576},
+                {0 / 3, 12 / 3, 24 / 3, 36 / 3, 54 / 3,  78 / 3,  108 / 3, 144 / 3, 186 / 3, 240 /
+                                                                                             3,  312 /
+                                                                                                 3,
+                                                                                                      402 /
+                                                                                                      3,   522 /
+                                                                                                           3,   576 /
+                                                                                                                3},   {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
+                , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
+        },
+        {                   /* MPEG-2.5 8 kHz */
+                {0, 12, 24, 36, 48, 60, 72, 88, 108, 132, 160, 192, 232, 280, 336, 400, 476, 566, 568, 570,
+                                                                                                            572, 574, 576},
+                {0 / 3, 24 / 3, 48 / 3, 72 / 3, 108 / 3, 156 / 3, 216 / 3, 288 / 3, 372 / 3, 480 /
+                                                                                             3,  486 /
+                                                                                                 3,
+                                                                                                      492 /
+                                                                                                      3,   498 /
+                                                                                                           3,   576 /
+                                                                                                                3},   {0, 0, 0, 0, 0, 0, 0} /*  sfb21 pseudo sub bands */
+                , {0, 0, 0, 0, 0, 0, 0} /*  sfb12 pseudo sub bands */
+        }
 };
 
 
 /* FIXME: move global variables in some struct */
 
-FLOAT   pow20[Q_MAX + Q_MAX2 + 1];
-FLOAT   ipow20[Q_MAX];
-FLOAT   pow43[PRECALC_SIZE];
+FLOAT pow20[Q_MAX + Q_MAX2 + 1];
+FLOAT ipow20[Q_MAX];
+FLOAT pow43[PRECALC_SIZE];
 /* initialized in first call to iteration_init */
 #ifdef TAKEHIRO_IEEE754_HACK
 FLOAT   adj43asm[PRECALC_SIZE];
 #else
-FLOAT   adj43[PRECALC_SIZE];
+FLOAT adj43[PRECALC_SIZE];
 #endif
 
 /* 
@@ -208,17 +214,15 @@ ATH = ATH * 2.5e-10      (ener)
 
 */
 
-static  FLOAT
-ATHmdct(SessionConfig_t const *cfg, FLOAT f)
-{
-    FLOAT   ath;
+static FLOAT
+ATHmdct(SessionConfig_t const *cfg, FLOAT f) {
+    FLOAT ath;
 
     ath = ATHformula(cfg, f);
 
     if (cfg->ATHfixpoint > 0) {
         ath -= cfg->ATHfixpoint;
-    }
-    else {
+    } else {
         ath -= NSATHSCALE;
     }
     ath += cfg->ATH_offset_db;
@@ -229,15 +233,14 @@ ATHmdct(SessionConfig_t const *cfg, FLOAT f)
 }
 
 static void
-compute_ath(lame_internal_flags const* gfc)
-{
+compute_ath(lame_internal_flags const *gfc) {
     SessionConfig_t const *const cfg = &gfc->cfg;
-    FLOAT  *const ATH_l = gfc->ATH->l;
-    FLOAT  *const ATH_psfb21 = gfc->ATH->psfb21;
-    FLOAT  *const ATH_s = gfc->ATH->s;
-    FLOAT  *const ATH_psfb12 = gfc->ATH->psfb12;
-    int     sfb, i, start, end;
-    FLOAT   ATH_f;
+    FLOAT *const ATH_l = gfc->ATH->l;
+    FLOAT *const ATH_psfb21 = gfc->ATH->psfb21;
+    FLOAT *const ATH_s = gfc->ATH->s;
+    FLOAT *const ATH_psfb12 = gfc->ATH->psfb12;
+    int sfb, i, start, end;
+    FLOAT ATH_f;
     FLOAT const samp_freq = cfg->samplerate_out;
 
     for (sfb = 0; sfb < SBMAX_l; sfb++) {
@@ -322,25 +325,24 @@ compute_ath(lame_internal_flags const* gfc)
 }
 
 
-static float const payload_long[2][4] = 
-{ {-0.000f, -0.000f, -0.000f, +0.000f}
-, {-0.500f, -0.250f, -0.025f, +0.500f}
-};
-static float const payload_short[2][4] = 
-{ {-0.000f, -0.000f, -0.000f, +0.000f}
-, {-2.000f, -1.000f, -0.050f, +0.500f}
-};
+static float const payload_long[2][4] =
+        {{-0.000f, -0.000f, -0.000f, +0.000f},
+         {-0.500f, -0.250f, -0.025f, +0.500f}
+        };
+static float const payload_short[2][4] =
+        {{-0.000f, -0.000f, -0.000f, +0.000f},
+         {-2.000f, -1.000f, -0.050f, +0.500f}
+        };
 
 /************************************************************************/
 /*  initialization for iteration_loop */
 /************************************************************************/
 void
-iteration_init(lame_internal_flags * gfc)
-{
+iteration_init(lame_internal_flags *gfc) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     III_side_info_t *const l3_side = &gfc->l3_side;
-    FLOAT   adjust, db;
-    int     i, sel;
+    FLOAT adjust, db;
+    int i, sel;
 
     if (gfc->iteration_init_init == 0) {
         gfc->iteration_init_init = 1;
@@ -418,22 +420,19 @@ iteration_init(lame_internal_flags * gfc)
 }
 
 
-
-
-
 /************************************************************************
  * allocate bits among 2 channels based on PE
  * mt 6/99
  * bugfixes rh 8/01: often allocated more than the allowed 4095 bits
  ************************************************************************/
 int
-on_pe(lame_internal_flags * gfc, const FLOAT pe[][2], int targ_bits[2], int mean_bits, int gr, int cbr)
-{
+on_pe(lame_internal_flags *gfc, const FLOAT pe[][2], int targ_bits[2], int mean_bits, int gr,
+      int cbr) {
     SessionConfig_t const *const cfg = &gfc->cfg;
-    int     extra_bits = 0, tbits, bits;
-    int     add_bits[2] = {0, 0};
-    int     max_bits;        /* maximum allowed bits for this granule */
-    int     ch;
+    int extra_bits = 0, tbits, bits;
+    int add_bits[2] = {0, 0};
+    int max_bits;        /* maximum allowed bits for this granule */
+    int ch;
 
     /* allocate targ_bits for granule */
     ResvMaxBits(gfc, mean_bits, &tbits, &extra_bits, cbr);
@@ -475,7 +474,7 @@ on_pe(lame_internal_flags * gfc, const FLOAT pe[][2], int targ_bits[2], int mean
         bits += targ_bits[ch];
     }
     if (bits > MAX_BITS_PER_GRANULE) {
-        int     sum = 0;
+        int sum = 0;
         for (ch = 0; ch < cfg->channels_out; ++ch) {
             targ_bits[ch] *= MAX_BITS_PER_GRANULE;
             targ_bits[ch] /= bits;
@@ -488,13 +487,10 @@ on_pe(lame_internal_flags * gfc, const FLOAT pe[][2], int targ_bits[2], int mean
 }
 
 
-
-
 void
-reduce_side(int targ_bits[2], FLOAT ms_ener_ratio, int mean_bits, int max_bits)
-{
-    int     move_bits;
-    FLOAT   fac;
+reduce_side(int targ_bits[2], FLOAT ms_ener_ratio, int mean_bits, int max_bits) {
+    int move_bits;
+    FLOAT fac;
 
     assert(max_bits <= MAX_BITS_PER_GRANULE);
     assert(targ_bits[0] + targ_bits[1] <= MAX_BITS_PER_GRANULE);
@@ -528,8 +524,7 @@ reduce_side(int targ_bits[2], FLOAT ms_ener_ratio, int mean_bits, int max_bits)
             if (targ_bits[0] < mean_bits)
                 targ_bits[0] += move_bits;
             targ_bits[1] -= move_bits;
-        }
-        else {
+        } else {
             targ_bits[0] += targ_bits[1] - 125;
             targ_bits[1] = 125;
         }
@@ -553,15 +548,14 @@ reduce_side(int targ_bits[2], FLOAT ms_ener_ratio, int mean_bits, int max_bits)
  */
 
 FLOAT
-athAdjust(FLOAT a, FLOAT x, FLOAT athFloor, float ATHfixpoint)
-{
+athAdjust(FLOAT a, FLOAT x, FLOAT athFloor, float ATHfixpoint) {
     /*  work in progress
      */
     FLOAT const o = 90.30873362f;
     FLOAT const p = (ATHfixpoint < 1.f) ? 94.82444863f : ATHfixpoint;
-    FLOAT   u = FAST_LOG10_X(x, 10.0f);
+    FLOAT u = FAST_LOG10_X(x, 10.0f);
     FLOAT const v = a * a;
-    FLOAT   w = 0.0f;
+    FLOAT w = 0.0f;
     u -= athFloor;      /* undo scaling */
     if (v > 1E-20f)
         w = 1.f + FAST_LOG10_X(v, 10.0f / o);
@@ -589,18 +583,17 @@ athAdjust(FLOAT a, FLOAT x, FLOAT athFloor, float ATHfixpoint)
 
 int
 calc_xmin(lame_internal_flags const *gfc,
-          III_psy_ratio const *const ratio, gr_info * const cod_info, FLOAT * pxmin)
-{
+          III_psy_ratio const *const ratio, gr_info *const cod_info, FLOAT *pxmin) {
     SessionConfig_t const *const cfg = &gfc->cfg;
-    int     sfb, gsfb, j = 0, ath_over = 0, k;
+    int sfb, gsfb, j = 0, ath_over = 0, k;
     ATH_t const *const ATH = gfc->ATH;
     const FLOAT *const xr = cod_info->xr;
-    int     max_nonzero;
+    int max_nonzero;
 
     for (gsfb = 0; gsfb < cod_info->psy_lmax; gsfb++) {
-        FLOAT   en0, xmin;
-        FLOAT   rh1, rh2, rh3;
-        int     width, l;
+        FLOAT en0, xmin;
+        FLOAT rh1, rh2, rh3;
+        int width, l;
 
         xmin = athAdjust(ATH->adjust_factor, ATH->l[gsfb], ATH->floor, cfg->ATHfixpoint);
         xmin *= gfc->sv_qnt.longfact[gsfb];
@@ -624,18 +617,16 @@ calc_xmin(lame_internal_flags const *gfc,
 
         if (en0 < xmin) {
             rh3 = en0;
-        }
-        else if (rh2 < xmin) {
+        } else if (rh2 < xmin) {
             rh3 = xmin;
-        }
-        else {
+        } else {
             rh3 = rh2;
         }
         xmin = rh3;
         {
             FLOAT const e = ratio->en.l[gsfb];
             if (e > 1e-12f) {
-                FLOAT   x;
+                FLOAT x;
                 x = en0 * ratio->thm.l[gsfb] / e;
                 x *= gfc->sv_qnt.longfact[gsfb];
                 if (xmin < x)
@@ -643,7 +634,7 @@ calc_xmin(lame_internal_flags const *gfc,
             }
         }
         xmin = Max(xmin, DBL_EPSILON);
-        cod_info->energy_above_cutoff[gsfb] = (en0 > xmin+1e-14f) ? 1 : 0;
+        cod_info->energy_above_cutoff[gsfb] = (en0 > xmin + 1e-14f) ? 1 : 0;
         *pxmin++ = xmin;
     }                   /* end of long block loop */
 
@@ -660,42 +651,39 @@ calc_xmin(lame_internal_flags const *gfc,
     }
     if (cod_info->block_type != SHORT_TYPE) { /* NORM, START or STOP type, but not SHORT */
         max_nonzero |= 1; /* only odd numbers */
-    }
-    else {
+    } else {
         max_nonzero /= 6; /* 3 short blocks */
         max_nonzero *= 6;
         max_nonzero += 5;
     }
 
     if (gfc->sv_qnt.sfb21_extra == 0 && cfg->samplerate_out < 44000) {
-      int const sfb_l = (cfg->samplerate_out <= 8000) ? 17 : 21;
-      int const sfb_s = (cfg->samplerate_out <= 8000) ?  9 : 12;
-      int   limit = 575;
-      if (cod_info->block_type != SHORT_TYPE) { /* NORM, START or STOP type, but not SHORT */
-          limit = gfc->scalefac_band.l[sfb_l]-1;
-      }
-      else {
-          limit = 3*gfc->scalefac_band.s[sfb_s]-1;
-      }
-      if (max_nonzero > limit) {
-          max_nonzero = limit;
-      }
+        int const sfb_l = (cfg->samplerate_out <= 8000) ? 17 : 21;
+        int const sfb_s = (cfg->samplerate_out <= 8000) ? 9 : 12;
+        int limit = 575;
+        if (cod_info->block_type != SHORT_TYPE) { /* NORM, START or STOP type, but not SHORT */
+            limit = gfc->scalefac_band.l[sfb_l] - 1;
+        } else {
+            limit = 3 * gfc->scalefac_band.s[sfb_s] - 1;
+        }
+        if (max_nonzero > limit) {
+            max_nonzero = limit;
+        }
     }
     cod_info->max_nonzero_coeff = max_nonzero;
 
 
-
     for (sfb = cod_info->sfb_smin; gsfb < cod_info->psymax; sfb++, gsfb += 3) {
-        int     width, b, l;
-        FLOAT   tmpATH;
+        int width, b, l;
+        FLOAT tmpATH;
 
         tmpATH = athAdjust(ATH->adjust_factor, ATH->s[sfb], ATH->floor, cfg->ATHfixpoint);
         tmpATH *= gfc->sv_qnt.shortfact[sfb];
-        
+
         width = cod_info->width[gsfb];
         for (b = 0; b < 3; b++) {
-            FLOAT   en0 = 0.0, xmin = tmpATH;
-            FLOAT   rh1, rh2, rh3;
+            FLOAT en0 = 0.0, xmin = tmpATH;
+            FLOAT rh1, rh2, rh3;
 
             rh1 = tmpATH / width;
 #ifdef DBL_EPSILON
@@ -711,21 +699,19 @@ calc_xmin(lame_internal_flags const *gfc,
             }
             if (en0 > tmpATH)
                 ath_over++;
-            
+
             if (en0 < tmpATH) {
                 rh3 = en0;
-            }
-            else if (rh2 < tmpATH) {
+            } else if (rh2 < tmpATH) {
                 rh3 = tmpATH;
-            }
-            else {
+            } else {
                 rh3 = rh2;
             }
             xmin = rh3;
             {
                 FLOAT const e = ratio->en.s[sfb][b];
                 if (e > 1e-12f) {
-                    FLOAT   x;
+                    FLOAT x;
                     x = en0 * ratio->thm.s[sfb][b] / e;
                     x *= gfc->sv_qnt.shortfact[sfb];
                     if (xmin < x)
@@ -733,7 +719,7 @@ calc_xmin(lame_internal_flags const *gfc,
                 }
             }
             xmin = Max(xmin, DBL_EPSILON);
-            cod_info->energy_above_cutoff[gsfb+b] = (en0 > xmin+1e-14f) ? 1 : 0;
+            cod_info->energy_above_cutoff[gsfb + b] = (en0 > xmin + 1e-14f) ? 1 : 0;
             *pxmin++ = xmin;
         }               /* b */
         if (cfg->use_temporal_masking_effect) {
@@ -748,16 +734,15 @@ calc_xmin(lame_internal_flags const *gfc,
 }
 
 
-static  FLOAT
-calc_noise_core_c(const gr_info * const cod_info, int *startline, int l, FLOAT step)
-{
-    FLOAT   noise = 0;
-    int     j = *startline;
+static FLOAT
+calc_noise_core_c(const gr_info *const cod_info, int *startline, int l, FLOAT step) {
+    FLOAT noise = 0;
+    int j = *startline;
     const int *const ix = cod_info->l3_enc;
 
     if (j > cod_info->count1) {
         while (l--) {
-            FLOAT   temp;
+            FLOAT temp;
             temp = cod_info->xr[j];
             j++;
             noise += temp * temp;
@@ -765,13 +750,12 @@ calc_noise_core_c(const gr_info * const cod_info, int *startline, int l, FLOAT s
             j++;
             noise += temp * temp;
         }
-    }
-    else if (j > cod_info->big_values) {
-        FLOAT   ix01[2];
+    } else if (j > cod_info->big_values) {
+        FLOAT ix01[2];
         ix01[0] = 0;
         ix01[1] = step;
         while (l--) {
-            FLOAT   temp;
+            FLOAT temp;
             temp = fabs(cod_info->xr[j]) - ix01[ix[j]];
             j++;
             noise += temp * temp;
@@ -779,10 +763,9 @@ calc_noise_core_c(const gr_info * const cod_info, int *startline, int l, FLOAT s
             j++;
             noise += temp * temp;
         }
-    }
-    else {
+    } else {
         while (l--) {
-            FLOAT   temp;
+            FLOAT temp;
             temp = fabs(cod_info->xr[j]) - pow43[ix[j]] * step;
             j++;
             noise += temp * temp;
@@ -816,13 +799,12 @@ calc_noise_core_c(const gr_info * const cod_info, int *startline, int l, FLOAT s
 int
 calc_noise(gr_info const *const cod_info,
            FLOAT const *l3_xmin,
-           FLOAT * distort, calc_noise_result * const res, calc_noise_data * prev_noise)
-{
-    int     sfb, l, over = 0;
-    FLOAT   over_noise_db = 0;
-    FLOAT   tot_noise_db = 0; /*    0 dB relative to masking */
-    FLOAT   max_noise = -20.0; /* -200 dB relative to masking */
-    int     j = 0;
+           FLOAT *distort, calc_noise_result *const res, calc_noise_data *prev_noise) {
+    int sfb, l, over = 0;
+    FLOAT over_noise_db = 0;
+    FLOAT tot_noise_db = 0; /*    0 dB relative to masking */
+    FLOAT max_noise = -20.0; /* -200 dB relative to masking */
+    int j = 0;
     const int *scalefac = cod_info->scalefac;
 
     res->over_SSD = 0;
@@ -830,12 +812,12 @@ calc_noise(gr_info const *const cod_info,
 
     for (sfb = 0; sfb < cod_info->psymax; sfb++) {
         int const s =
-            cod_info->global_gain - (((*scalefac++) + (cod_info->preflag ? pretab[sfb] : 0))
-                                     << (cod_info->scalefac_scale + 1))
-            - cod_info->subblock_gain[cod_info->window[sfb]] * 8;
+                cod_info->global_gain - (((*scalefac++) + (cod_info->preflag ? pretab[sfb] : 0))
+                        << (cod_info->scalefac_scale + 1))
+                - cod_info->subblock_gain[cod_info->window[sfb]] * 8;
         FLOAT const r_l3_xmin = 1.f / *l3_xmin++;
-        FLOAT   distort_ = 0.0f;
-        FLOAT   noise = 0.0f;
+        FLOAT distort_ = 0.0f;
+        FLOAT noise = 0.0f;
 
         if (prev_noise && (prev_noise->step[sfb] == s)) {
 
@@ -845,13 +827,12 @@ calc_noise(gr_info const *const cod_info,
 
             noise = prev_noise->noise_log[sfb];
 
-        }
-        else {
+        } else {
             FLOAT const step = POW20(s);
             l = cod_info->width[sfb] >> 1;
 
             if ((j + cod_info->width[sfb]) > cod_info->max_nonzero_coeff) {
-                int     usefullsize;
+                int usefullsize;
                 usefullsize = cod_info->max_nonzero_coeff - j + 1;
 
                 if (usefullsize > 0)
@@ -891,7 +872,7 @@ calc_noise(gr_info const *const cod_info,
         tot_noise_db += noise;
 
         if (noise > 0.0) {
-            int     tmp;
+            int tmp;
 
             tmp = Max((int) (noise * 10 + .5), 1);
             res->over_SSD += tmp * tmp;
@@ -914,12 +895,6 @@ calc_noise(gr_info const *const cod_info,
 }
 
 
-
-
-
-
-
-
 /************************************************************************
  *
  *  set_pinfo()
@@ -934,16 +909,15 @@ calc_noise(gr_info const *const cod_info,
 
 static void
 set_pinfo(lame_internal_flags const *gfc,
-          gr_info * const cod_info, const III_psy_ratio * const ratio, const int gr, const int ch)
-{
+          gr_info *const cod_info, const III_psy_ratio *const ratio, const int gr, const int ch) {
     SessionConfig_t const *const cfg = &gfc->cfg;
-    int     sfb, sfb2;
-    int     j, i, l, start, end, bw;
-    FLOAT   en0, en1;
+    int sfb, sfb2;
+    int j, i, l, start, end, bw;
+    FLOAT en0, en1;
     FLOAT const ifqstep = (cod_info->scalefac_scale == 0) ? .5 : 1.0;
     int const *const scalefac = cod_info->scalefac;
 
-    FLOAT   l3_xmin[SFBMAX], xfsf[SFBMAX];
+    FLOAT l3_xmin[SFBMAX], xfsf[SFBMAX];
     calc_noise_result noise;
 
     (void) calc_xmin(gfc, ratio, cod_info, l3_xmin);
@@ -1008,11 +982,11 @@ set_pinfo(lame_internal_flags const *gfc,
                     en0 = 0;
 
                 gfc->pinfo->thr_s[gr][ch][3 * sfb + i] =
-                    en1 * Max(en0 * ratio->thm.s[sfb][i], gfc->ATH->s[sfb]);
+                        en1 * Max(en0 * ratio->thm.s[sfb][i], gfc->ATH->s[sfb]);
 
                 /* there is no scalefactor bands >= SBPSY_s */
                 gfc->pinfo->LAMEsfb_s[gr][ch][3 * sfb + i]
-                    = -2.0 * cod_info->subblock_gain[i];
+                        = -2.0 * cod_info->subblock_gain[i];
                 if (sfb < SBPSY_s) {
                     gfc->pinfo->LAMEsfb_s[gr][ch][3 * sfb + i] -= ifqstep * scalefac[sfb2];
                 }
@@ -1043,24 +1017,23 @@ set_pinfo(lame_internal_flags const *gfc,
  ************************************************************************/
 
 void
-set_frame_pinfo(lame_internal_flags * gfc, const III_psy_ratio ratio[2][2])
-{
+set_frame_pinfo(lame_internal_flags *gfc, const III_psy_ratio ratio[2][2]) {
     SessionConfig_t const *const cfg = &gfc->cfg;
-    int     ch;
-    int     gr;
+    int ch;
+    int gr;
 
     /* for every granule and channel patch l3_enc and set info
      */
     for (gr = 0; gr < cfg->mode_gr; gr++) {
         for (ch = 0; ch < cfg->channels_out; ch++) {
             gr_info *const cod_info = &gfc->l3_side.tt[gr][ch];
-            int     scalefac_sav[SFBMAX];
+            int scalefac_sav[SFBMAX];
             memcpy(scalefac_sav, cod_info->scalefac, sizeof(scalefac_sav));
 
             /* reconstruct the scalefactors in case SCFSI was used 
              */
             if (gr == 1) {
-                int     sfb;
+                int sfb;
                 for (sfb = 0; sfb < cod_info->sfb_lmax; sfb++) {
                     if (cod_info->scalefac[sfb] < 0) /* scfsi */
                         cod_info->scalefac[sfb] = gfc->l3_side.tt[0][ch].scalefac[sfb];

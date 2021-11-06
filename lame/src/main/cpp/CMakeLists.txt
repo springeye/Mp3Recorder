@@ -7,10 +7,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s -O3 -w")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -w -g -fexceptions")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -w -g -fexceptions")
 file(GLOB_RECURSE SOURCE_FILES
-#        *.c
-#        *.h
-#        lame-3.98.4_libmp3lame/*.c
-#        lame-3.98.4_libmp3lame/*.h
+        #        *.c
+        #        *.h
+        #        lame-3.98.4_libmp3lame/*.c
+        #        lame-3.98.4_libmp3lame/*.h
+        com_github_henjue_lame_LameEncoder.c
         lame-3.100_libmp3lame/*.c
         lame-3.100_libmp3lame/*.h
         )

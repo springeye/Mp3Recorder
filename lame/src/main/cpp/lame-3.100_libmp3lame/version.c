@@ -51,8 +51,7 @@
   \return a pointer to a string which describes the version of LAME.
 */
 const char *
-get_lame_version(void)
-{                       /* primary to write screen reports */
+get_lame_version(void) {                       /* primary to write screen reports */
     /* Here we can also add informations about compile time configurations */
 
 #if   LAME_ALPHA_VERSION
@@ -68,7 +67,7 @@ get_lame_version(void)
         STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION) "." STR(LAME_PATCH_VERSION);
 #else
     static /*@observer@ */ const char *const str =
-        STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION);
+            STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION);
 #endif
 
     return str;
@@ -83,8 +82,7 @@ get_lame_version(void)
   \return a pointer to the short version of the LAME version string.
 */
 const char *
-get_lame_short_version(void)
-{
+get_lame_short_version(void) {
     /* adding date and time to version string makes it harder for output
        validation */
 
@@ -99,7 +97,7 @@ get_lame_short_version(void)
         STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION) "." STR(LAME_PATCH_VERSION);
 #else
     static /*@observer@ */ const char *const str =
-        STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION);
+            STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION);
 #endif
 
     return str;
@@ -113,8 +111,7 @@ get_lame_short_version(void)
   \return a pointer to the short version of the LAME version string.
 */
 const char *
-get_lame_very_short_version(void)
-{
+get_lame_very_short_version(void) {
     /* adding date and time to version string makes it harder for output
        validation */
 #if   LAME_ALPHA_VERSION
@@ -128,11 +125,11 @@ get_lame_very_short_version(void)
 #endif
     static /*@observer@ */ const char *const str =
 #if (LAME_PATCH_VERSION > 0)
-      "LAME" STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION) P STR(LAME_PATCH_VERSION)
+            "LAME" STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION) P STR(LAME_PATCH_VERSION)
 #else
-      "LAME" STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION) P
+            "LAME" STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION) P
 #endif
-      ;
+    ;
     return str;
 }
 
@@ -144,13 +141,11 @@ get_lame_very_short_version(void)
   \param void   
   \return a pointer to the short version of the LAME version string.
  */
-const char*
-get_lame_tag_encoder_short_version(void)
-{
+const char *
+get_lame_tag_encoder_short_version(void) {
     static /*@observer@ */ const char *const str =
             /* FIXME: new scheme / new version counting / drop versioning here ? */
-    "LAME" STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION) P
-    ;
+            "LAME" STR(LAME_MAJOR_VERSION) "." STR(LAME_MINOR_VERSION) P;
     return str;
 }
 
@@ -160,8 +155,7 @@ get_lame_tag_encoder_short_version(void)
   \return a pointer to a string which describes the version of GPSYCHO.
 */
 const char *
-get_psy_version(void)
-{
+get_psy_version(void) {
 #if   PSY_ALPHA_VERSION > 0
     static /*@observer@ */ const char *const str =
         STR(PSY_MAJOR_VERSION) "." STR(PSY_MINOR_VERSION)
@@ -172,7 +166,7 @@ get_psy_version(void)
         " (beta " STR(PSY_BETA_VERSION) ", " __DATE__ ")";
 #else
     static /*@observer@ */ const char *const str =
-        STR(PSY_MAJOR_VERSION) "." STR(PSY_MINOR_VERSION);
+            STR(PSY_MAJOR_VERSION) "." STR(PSY_MINOR_VERSION);
 #endif
 
     return str;
@@ -185,8 +179,7 @@ get_psy_version(void)
   \return a pointer to a string which is a URL for the LAME website.
 */
 const char *
-get_lame_url(void)
-{
+get_lame_url(void) {
     static /*@observer@ */ const char *const str = LAME_URL;
 
     return str;
@@ -201,8 +194,7 @@ get_lame_url(void)
   \param lvp    
 */
 void
-get_lame_version_numerical(lame_version_t * lvp)
-{
+get_lame_version_numerical(lame_version_t *lvp) {
     static /*@observer@ */ const char *const features = ""; /* obsolete */
 
     /* generic version */
@@ -233,21 +225,20 @@ get_lame_version_numerical(lame_version_t * lvp)
 
 
 const char *
-get_lame_os_bitness(void)
-{
+get_lame_os_bitness(void) {
     static /*@observer@ */ const char *const strXX = "";
     static /*@observer@ */ const char *const str32 = "32bits";
     static /*@observer@ */ const char *const str64 = "64bits";
 
     switch (sizeof(void *)) {
-    case 4:
-        return str32;
+        case 4:
+            return str32;
 
-    case 8:
-        return str64;
+        case 8:
+            return str64;
 
-    default:
-        return strXX;
+        default:
+            return strXX;
     }
 }
 

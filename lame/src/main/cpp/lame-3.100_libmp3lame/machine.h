@@ -28,8 +28,10 @@
 #include <assert.h>
 
 #ifdef STDC_HEADERS
+
 # include <stdlib.h>
 # include <string.h>
+
 #else
 # ifndef HAVE_STRCHR
 #  define strchr index
@@ -42,11 +44,14 @@ char   *strchr(), *strrchr();
 # endif
 #endif
 
-#if  defined(__riscos__)  &&  defined(FPA10)
+#if  defined(__riscos__) && defined(FPA10)
 # include "ymath.h"
 #else
+
 # include <math.h>
+
 #endif
+
 #include <limits.h>
 
 #include <ctype.h>
@@ -62,8 +67,10 @@ char   *strchr(), *strrchr();
 # include <types.h>
 # include <stat.h>
 #else
+
 # include <sys/types.h>
 # include <sys/stat.h>
+
 #endif
 
 #ifdef HAVE_INTTYPES_H
@@ -121,7 +128,7 @@ char   *strchr(), *strrchr();
  * lot of conversions.
  */
 
-#if ( defined(_MSC_VER) || defined(__BORLANDC__) || defined(__MINGW32__) )
+#if (defined(_MSC_VER) || defined(__BORLANDC__) || defined(__MINGW32__))
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
 # include <float.h>
@@ -166,7 +173,7 @@ typedef FLOAT sample_t;
   )
 
 #if 1
-#define EQ(a,b) (\
+#define EQ(a, b) (\
 (fabs(a) > fabs(b)) \
  ? (fabs((a)-(b)) <= (fabs(a) * 1e-6f)) \
  : (fabs((a)-(b)) <= (fabs(b) * 1e-6f)))
@@ -174,7 +181,7 @@ typedef FLOAT sample_t;
 #define EQ(a,b) (fabs((a)-(b))<1E-37)
 #endif
 
-#define NEQ(a,b) (!EQ(a,b))
+#define NEQ(a, b) (!EQ(a,b))
 
 #ifdef _MSC_VER
 #  if _MSC_VER < 1400

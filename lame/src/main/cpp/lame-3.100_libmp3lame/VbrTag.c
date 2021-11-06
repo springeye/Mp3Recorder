@@ -65,12 +65,10 @@
 #define XING_BITRATE2  64
 #define XING_BITRATE25 32
 
-extern const char* get_lame_tag_encoder_short_version(void);
+extern const char *get_lame_tag_encoder_short_version(void);
 
-static const char VBRTag0[] = { "Xing" };
-static const char VBRTag1[] = { "Info" };
-
-
+static const char VBRTag0[] = {"Xing"};
+static const char VBRTag1[] = {"Info"};
 
 
 /* Lookup table for fast CRC computation
@@ -78,42 +76,39 @@ static const char VBRTag1[] = { "Info" };
  * Uses the polynomial x^16+x^15+x^2+1 */
 
 static const unsigned int crc16_lookup[256] = {
-    0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
-    0xC601, 0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440,
-    0xCC01, 0x0CC0, 0x0D80, 0xCD41, 0x0F00, 0xCFC1, 0xCE81, 0x0E40,
-    0x0A00, 0xCAC1, 0xCB81, 0x0B40, 0xC901, 0x09C0, 0x0880, 0xC841,
-    0xD801, 0x18C0, 0x1980, 0xD941, 0x1B00, 0xDBC1, 0xDA81, 0x1A40,
-    0x1E00, 0xDEC1, 0xDF81, 0x1F40, 0xDD01, 0x1DC0, 0x1C80, 0xDC41,
-    0x1400, 0xD4C1, 0xD581, 0x1540, 0xD701, 0x17C0, 0x1680, 0xD641,
-    0xD201, 0x12C0, 0x1380, 0xD341, 0x1100, 0xD1C1, 0xD081, 0x1040,
-    0xF001, 0x30C0, 0x3180, 0xF141, 0x3300, 0xF3C1, 0xF281, 0x3240,
-    0x3600, 0xF6C1, 0xF781, 0x3740, 0xF501, 0x35C0, 0x3480, 0xF441,
-    0x3C00, 0xFCC1, 0xFD81, 0x3D40, 0xFF01, 0x3FC0, 0x3E80, 0xFE41,
-    0xFA01, 0x3AC0, 0x3B80, 0xFB41, 0x3900, 0xF9C1, 0xF881, 0x3840,
-    0x2800, 0xE8C1, 0xE981, 0x2940, 0xEB01, 0x2BC0, 0x2A80, 0xEA41,
-    0xEE01, 0x2EC0, 0x2F80, 0xEF41, 0x2D00, 0xEDC1, 0xEC81, 0x2C40,
-    0xE401, 0x24C0, 0x2580, 0xE541, 0x2700, 0xE7C1, 0xE681, 0x2640,
-    0x2200, 0xE2C1, 0xE381, 0x2340, 0xE101, 0x21C0, 0x2080, 0xE041,
-    0xA001, 0x60C0, 0x6180, 0xA141, 0x6300, 0xA3C1, 0xA281, 0x6240,
-    0x6600, 0xA6C1, 0xA781, 0x6740, 0xA501, 0x65C0, 0x6480, 0xA441,
-    0x6C00, 0xACC1, 0xAD81, 0x6D40, 0xAF01, 0x6FC0, 0x6E80, 0xAE41,
-    0xAA01, 0x6AC0, 0x6B80, 0xAB41, 0x6900, 0xA9C1, 0xA881, 0x6840,
-    0x7800, 0xB8C1, 0xB981, 0x7940, 0xBB01, 0x7BC0, 0x7A80, 0xBA41,
-    0xBE01, 0x7EC0, 0x7F80, 0xBF41, 0x7D00, 0xBDC1, 0xBC81, 0x7C40,
-    0xB401, 0x74C0, 0x7580, 0xB541, 0x7700, 0xB7C1, 0xB681, 0x7640,
-    0x7200, 0xB2C1, 0xB381, 0x7340, 0xB101, 0x71C0, 0x7080, 0xB041,
-    0x5000, 0x90C1, 0x9181, 0x5140, 0x9301, 0x53C0, 0x5280, 0x9241,
-    0x9601, 0x56C0, 0x5780, 0x9741, 0x5500, 0x95C1, 0x9481, 0x5440,
-    0x9C01, 0x5CC0, 0x5D80, 0x9D41, 0x5F00, 0x9FC1, 0x9E81, 0x5E40,
-    0x5A00, 0x9AC1, 0x9B81, 0x5B40, 0x9901, 0x59C0, 0x5880, 0x9841,
-    0x8801, 0x48C0, 0x4980, 0x8941, 0x4B00, 0x8BC1, 0x8A81, 0x4A40,
-    0x4E00, 0x8EC1, 0x8F81, 0x4F40, 0x8D01, 0x4DC0, 0x4C80, 0x8C41,
-    0x4400, 0x84C1, 0x8581, 0x4540, 0x8701, 0x47C0, 0x4680, 0x8641,
-    0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
+        0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
+        0xC601, 0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440,
+        0xCC01, 0x0CC0, 0x0D80, 0xCD41, 0x0F00, 0xCFC1, 0xCE81, 0x0E40,
+        0x0A00, 0xCAC1, 0xCB81, 0x0B40, 0xC901, 0x09C0, 0x0880, 0xC841,
+        0xD801, 0x18C0, 0x1980, 0xD941, 0x1B00, 0xDBC1, 0xDA81, 0x1A40,
+        0x1E00, 0xDEC1, 0xDF81, 0x1F40, 0xDD01, 0x1DC0, 0x1C80, 0xDC41,
+        0x1400, 0xD4C1, 0xD581, 0x1540, 0xD701, 0x17C0, 0x1680, 0xD641,
+        0xD201, 0x12C0, 0x1380, 0xD341, 0x1100, 0xD1C1, 0xD081, 0x1040,
+        0xF001, 0x30C0, 0x3180, 0xF141, 0x3300, 0xF3C1, 0xF281, 0x3240,
+        0x3600, 0xF6C1, 0xF781, 0x3740, 0xF501, 0x35C0, 0x3480, 0xF441,
+        0x3C00, 0xFCC1, 0xFD81, 0x3D40, 0xFF01, 0x3FC0, 0x3E80, 0xFE41,
+        0xFA01, 0x3AC0, 0x3B80, 0xFB41, 0x3900, 0xF9C1, 0xF881, 0x3840,
+        0x2800, 0xE8C1, 0xE981, 0x2940, 0xEB01, 0x2BC0, 0x2A80, 0xEA41,
+        0xEE01, 0x2EC0, 0x2F80, 0xEF41, 0x2D00, 0xEDC1, 0xEC81, 0x2C40,
+        0xE401, 0x24C0, 0x2580, 0xE541, 0x2700, 0xE7C1, 0xE681, 0x2640,
+        0x2200, 0xE2C1, 0xE381, 0x2340, 0xE101, 0x21C0, 0x2080, 0xE041,
+        0xA001, 0x60C0, 0x6180, 0xA141, 0x6300, 0xA3C1, 0xA281, 0x6240,
+        0x6600, 0xA6C1, 0xA781, 0x6740, 0xA501, 0x65C0, 0x6480, 0xA441,
+        0x6C00, 0xACC1, 0xAD81, 0x6D40, 0xAF01, 0x6FC0, 0x6E80, 0xAE41,
+        0xAA01, 0x6AC0, 0x6B80, 0xAB41, 0x6900, 0xA9C1, 0xA881, 0x6840,
+        0x7800, 0xB8C1, 0xB981, 0x7940, 0xBB01, 0x7BC0, 0x7A80, 0xBA41,
+        0xBE01, 0x7EC0, 0x7F80, 0xBF41, 0x7D00, 0xBDC1, 0xBC81, 0x7C40,
+        0xB401, 0x74C0, 0x7580, 0xB541, 0x7700, 0xB7C1, 0xB681, 0x7640,
+        0x7200, 0xB2C1, 0xB381, 0x7340, 0xB101, 0x71C0, 0x7080, 0xB041,
+        0x5000, 0x90C1, 0x9181, 0x5140, 0x9301, 0x53C0, 0x5280, 0x9241,
+        0x9601, 0x56C0, 0x5780, 0x9741, 0x5500, 0x95C1, 0x9481, 0x5440,
+        0x9C01, 0x5CC0, 0x5D80, 0x9D41, 0x5F00, 0x9FC1, 0x9E81, 0x5E40,
+        0x5A00, 0x9AC1, 0x9B81, 0x5B40, 0x9901, 0x59C0, 0x5880, 0x9841,
+        0x8801, 0x48C0, 0x4980, 0x8941, 0x4B00, 0x8BC1, 0x8A81, 0x4A40,
+        0x4E00, 0x8EC1, 0x8F81, 0x4F40, 0x8D01, 0x4DC0, 0x4C80, 0x8C41,
+        0x4400, 0x84C1, 0x8581, 0x4540, 0x8701, 0x47C0, 0x4680, 0x8641,
+        0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
 };
-
-
-
 
 
 /***********************************************************************
@@ -121,9 +116,8 @@ static const unsigned int crc16_lookup[256] = {
  ***********************************************************************/
 
 static void
-addVbr(VBR_seek_info_t * v, int bitrate)
-{
-    int     i;
+addVbr(VBR_seek_info_t *v, int bitrate) {
+    int i;
 
     v->nVbrNumFrames++;
     v->sum += bitrate;
@@ -148,16 +142,15 @@ addVbr(VBR_seek_info_t * v, int bitrate)
 }
 
 static void
-Xing_seek_table(VBR_seek_info_t const* v, unsigned char *t)
-{
-    int     i, indx;
-    int     seek_point;
+Xing_seek_table(VBR_seek_info_t const *v, unsigned char *t) {
+    int i, indx;
+    int seek_point;
 
     if (v->pos <= 0)
         return;
 
     for (i = 1; i < NUMTOCENTRIES; ++i) {
-        float   j = i / (float) NUMTOCENTRIES, act, sum;
+        float j = i / (float) NUMTOCENTRIES, act, sum;
         indx = (int) (floor(j * v->pos));
         if (indx > v->pos - 1)
             indx = v->pos - 1;
@@ -193,9 +186,8 @@ print_seeking(unsigned char *t)
  ****************************************************************************
 */
 void
-AddVbrFrame(lame_internal_flags * gfc)
-{
-    int     kbps = bitrate_table[gfc->cfg.version][gfc->ov_enc.bitrate_index];
+AddVbrFrame(lame_internal_flags *gfc) {
+    int kbps = bitrate_table[gfc->cfg.version][gfc->ov_enc.bitrate_index];
     assert(gfc->VBR_seek_table.bag);
     addVbr(&gfc->VBR_seek_table, kbps);
 }
@@ -203,9 +195,8 @@ AddVbrFrame(lame_internal_flags * gfc)
 
 /*-------------------------------------------------------------*/
 static int
-ExtractI4(const unsigned char *buf)
-{
-    int     x;
+ExtractI4(const unsigned char *buf) {
+    int x;
     /* big endian extract */
     x = buf[0];
     x <<= 8;
@@ -218,8 +209,7 @@ ExtractI4(const unsigned char *buf)
 }
 
 static void
-CreateI4(unsigned char *buf, uint32_t nValue)
-{
+CreateI4(unsigned char *buf, uint32_t nValue) {
     /* big endian create */
     buf[0] = (nValue >> 24) & 0xff;
     buf[1] = (nValue >> 16) & 0xff;
@@ -228,10 +218,8 @@ CreateI4(unsigned char *buf, uint32_t nValue)
 }
 
 
-
 static void
-CreateI2(unsigned char *buf, int nValue)
-{
+CreateI2(unsigned char *buf, int nValue) {
     /* big endian create */
     buf[0] = (nValue >> 8) & 0xff;
     buf[1] = (nValue) & 0xff;
@@ -239,9 +227,8 @@ CreateI2(unsigned char *buf, int nValue)
 
 /* check for magic strings*/
 static int
-IsVbrTag(const unsigned char *buf)
-{
-    int     isTag0, isTag1;
+IsVbrTag(const unsigned char *buf) {
+    int isTag0, isTag1;
 
     isTag0 = ((buf[0] == VBRTag0[0]) && (buf[1] == VBRTag0[1]) && (buf[2] == VBRTag0[2])
               && (buf[3] == VBRTag0[3]));
@@ -251,14 +238,13 @@ IsVbrTag(const unsigned char *buf)
     return (isTag0 || isTag1);
 }
 
-#define SHIFT_IN_BITS_VALUE(x,n,v) ( x = (x << (n)) | ( (v) & ~(-1 << (n)) ) )
+#define SHIFT_IN_BITS_VALUE(x, n, v) ( x = (x << (n)) | ( (v) & ~(-1 << (n)) ) )
 
 static void
-setLameTagFrameHeader(lame_internal_flags const *gfc, unsigned char *buffer)
-{
+setLameTagFrameHeader(lame_internal_flags const *gfc, unsigned char *buffer) {
     SessionConfig_t const *const cfg = &gfc->cfg;
     EncResult_t const *const eov = &gfc->ov_enc;
-    char    abyte, bbyte;
+    char abyte, bbyte;
 
     SHIFT_IN_BITS_VALUE(buffer[0], 8u, 0xffu);
 
@@ -285,11 +271,10 @@ setLameTagFrameHeader(lame_internal_flags const *gfc, unsigned char *buffer)
     buffer[0] = (uint8_t) 0xff;
     abyte = (buffer[1] & (unsigned char) 0xf1);
     {
-        int     bitrate;
+        int bitrate;
         if (1 == cfg->version) {
             bitrate = XING_BITRATE1;
-        }
-        else {
+        } else {
             if (cfg->samplerate_out < 16000)
                 bitrate = XING_BITRATE25;
             else
@@ -313,8 +298,7 @@ setLameTagFrameHeader(lame_internal_flags const *gfc, unsigned char *buffer)
         buffer[1] = abyte | (char) 0x0a; /* was 0x0b; */
         abyte = buffer[2] & (char) 0x0d; /* AF keep also private bit */
         buffer[2] = (char) bbyte | abyte; /* 64kbs MPEG1 frame */
-    }
-    else {
+    } else {
         /* MPEG2 */
         buffer[1] = abyte | (char) 0x02; /* was 0x03; */
         abyte = buffer[2] & (char) 0x0d; /* AF keep also private bit */
@@ -359,18 +343,17 @@ CheckVbrTag(unsigned char *buf)
 #endif
 
 int
-GetVbrTag(VBRTAGDATA * pTagData, const unsigned char *buf)
-{
-    int     i, head_flags;
-    int     h_bitrate, h_id, h_mode, h_sr_index, h_layer;
-    int     enc_delay, enc_padding;
+GetVbrTag(VBRTAGDATA *pTagData, const unsigned char *buf) {
+    int i, head_flags;
+    int h_bitrate, h_id, h_mode, h_sr_index, h_layer;
+    int enc_delay, enc_padding;
 
     /* get Vbr header data */
     pTagData->flags = 0;
 
     /* get selected MPEG header data */
     h_layer = (buf[1] >> 1) & 3;
-    if ( h_layer != 0x01 ) {
+    if (h_layer != 0x01) {
         /* the following code assumes Layer-3, so give up here */
         return 0;
     }
@@ -397,8 +380,7 @@ GetVbrTag(VBRTAGDATA * pTagData, const unsigned char *buf)
             buf += (32 + 4);
         else
             buf += (17 + 4);
-    }
-    else {
+    } else {
         /* mpeg2 */
         if (h_mode != 3)
             buf += (17 + 4);
@@ -489,11 +471,10 @@ GetVbrTag(VBRTAGDATA * pTagData, const unsigned char *buf)
  ****************************************************************************
 */
 int
-InitVbrTag(lame_global_flags * gfp)
-{
+InitVbrTag(lame_global_flags *gfp) {
     lame_internal_flags *gfc = gfp->internal_flags;
     SessionConfig_t const *const cfg = &gfc->cfg;
-    int     kbps_header;
+    int kbps_header;
 
 #define MAXFRAMESIZE 2880 /* or 0xB40, the max freeformat 640 32kHz framesize */
 
@@ -515,8 +496,7 @@ InitVbrTag(lame_global_flags * gfp)
 
     if (1 == cfg->version) {
         kbps_header = XING_BITRATE1;
-    }
-    else {
+    } else {
         if (cfg->samplerate_out < 16000)
             kbps_header = XING_BITRATE25;
         else
@@ -529,8 +509,8 @@ InitVbrTag(lame_global_flags * gfp)
     /** make sure LAME Header fits into Frame
      */
     {
-        int     total_frame_size = ((cfg->version + 1) * 72000 * kbps_header) / cfg->samplerate_out;
-        int     header_size = (cfg->sideinfo_len + LAMEHEADERSIZE);
+        int total_frame_size = ((cfg->version + 1) * 72000 * kbps_header) / cfg->samplerate_out;
+        int header_size = (cfg->sideinfo_len + LAMEHEADERSIZE);
         gfc->VBR_seek_table.TotalFrameSize = total_frame_size;
         if (total_frame_size < header_size || total_frame_size > MAXFRAMESIZE) {
             /* disable tag, it wont fit */
@@ -551,8 +531,7 @@ InitVbrTag(lame_global_flags * gfp)
         gfc->VBR_seek_table.bag = lame_calloc(int, 400);
         if (gfc->VBR_seek_table.bag != NULL) {
             gfc->VBR_seek_table.size = 400;
-        }
-        else {
+        } else {
             gfc->VBR_seek_table.size = 0;
             ERRORF(gfc, "Error: can't allocate VbrFrames buffer\n");
             gfc->cfg.write_lame_tag = 0;
@@ -563,7 +542,7 @@ InitVbrTag(lame_global_flags * gfp)
     /* write dummy VBR tag of all 0's into bitstream */
     {
         uint8_t buffer[MAXFRAMESIZE];
-        size_t  i, n;
+        size_t i, n;
 
         memset(buffer, 0, sizeof(buffer));
         setLameTagFrameHeader(gfc, buffer);
@@ -577,11 +556,9 @@ InitVbrTag(lame_global_flags * gfp)
 }
 
 
-
 /* fast CRC-16 computation - uses table crc16_lookup 8*/
 static uint16_t
-CRC_update_lookup(uint16_t value, uint16_t crc)
-{
+CRC_update_lookup(uint16_t value, uint16_t crc) {
     uint16_t tmp;
     tmp = crc ^ value;
     crc = (crc >> 8) ^ crc16_lookup[tmp & 0xff];
@@ -589,15 +566,11 @@ CRC_update_lookup(uint16_t value, uint16_t crc)
 }
 
 void
-UpdateMusicCRC(uint16_t * crc, unsigned char const *buffer, int size)
-{
-    int     i;
+UpdateMusicCRC(uint16_t *crc, unsigned char const *buffer, int size) {
+    int i;
     for (i = 0; i < size; ++i)
         *crc = CRC_update_lookup(buffer[i], *crc);
 }
-
-
-
 
 
 /****************************************************************************
@@ -612,21 +585,21 @@ UpdateMusicCRC(uint16_t * crc, unsigned char const *buffer, int size)
  ****************************************************************************
 */
 static int
-PutLameVBR(lame_global_flags const *gfp, size_t nMusicLength, uint8_t * pbtStreamBuffer, uint16_t crc)
-{
+PutLameVBR(lame_global_flags const *gfp, size_t nMusicLength, uint8_t *pbtStreamBuffer,
+           uint16_t crc) {
     lame_internal_flags const *gfc = gfp->internal_flags;
     SessionConfig_t const *const cfg = &gfc->cfg;
 
-    int     nBytesWritten = 0;
-    int     i;
+    int nBytesWritten = 0;
+    int i;
 
-    int     enc_delay = gfc->ov_enc.encoder_delay; /* encoder delay */
-    int     enc_padding = gfc->ov_enc.encoder_padding; /* encoder padding  */
+    int enc_delay = gfc->ov_enc.encoder_delay; /* encoder delay */
+    int enc_padding = gfc->ov_enc.encoder_padding; /* encoder padding  */
 
     /*recall: cfg->vbr_q is for example set by the switch -V  */
     /*   gfp->quality by -q, -h, -f, etc */
 
-    int     nQuality = (100 - 10 * gfp->VBR_q - gfp->quality);
+    int nQuality = (100 - 10 * gfp->VBR_q - gfp->quality);
 
 
     /*
@@ -643,10 +616,11 @@ PutLameVBR(lame_global_flags const *gfp, size_t nMusicLength, uint8_t * pbtStrea
     uint8_t nVBR;
     uint8_t nRevision = 0x00;
     uint8_t nRevMethod;
-    uint8_t vbr_type_translator[] = { 1, 5, 3, 2, 4, 0, 3 }; /*numbering different in vbr_mode vs. Lame tag */
+    uint8_t vbr_type_translator[] = {1, 5, 3, 2, 4, 0,
+                                     3}; /*numbering different in vbr_mode vs. Lame tag */
 
     uint8_t nLowpass =
-        (((cfg->lowpassfreq / 100.0) + .5) > 255 ? 255 : (cfg->lowpassfreq / 100.0) + .5);
+            (((cfg->lowpassfreq / 100.0) + .5) > 255 ? 255 : (cfg->lowpassfreq / 100.0) + .5);
 
     uint32_t nPeakSignalAmplitude = 0;
 
@@ -655,7 +629,7 @@ PutLameVBR(lame_global_flags const *gfp, size_t nMusicLength, uint8_t * pbtStrea
 
     uint8_t nNoiseShaping = cfg->noise_shaping;
     uint8_t nStereoMode = 0;
-    int     bNonOptimal = 0;
+    int bNonOptimal = 0;
     uint8_t nSourceFreq = 0;
     uint8_t nMisc = 0;
     uint16_t nMusicCRC = 0;
@@ -667,8 +641,8 @@ PutLameVBR(lame_global_flags const *gfp, size_t nMusicLength, uint8_t * pbtStrea
     unsigned char bNoGapMore = 0;
     unsigned char bNoGapPrevious = 0;
 
-    int     nNoGapCount = gfp->nogap_total;
-    int     nNoGapCurr = gfp->nogap_current;
+    int nNoGapCount = gfp->nogap_total;
+    int nNoGapCurr = gfp->nogap_current;
 
 
     uint8_t nAthType = cfg->ATHtype; /*4 bits. */
@@ -676,17 +650,17 @@ PutLameVBR(lame_global_flags const *gfp, size_t nMusicLength, uint8_t * pbtStrea
     uint8_t nFlags = 0;
 
     /* if ABR, {store bitrate <=255} else { store "-b"} */
-    int     nABRBitrate;
+    int nABRBitrate;
     switch (cfg->vbr) {
-    case vbr_abr:{
+        case vbr_abr: {
             nABRBitrate = cfg->vbr_avg_bitrate_kbps;
             break;
         }
-    case vbr_off:{
+        case vbr_off: {
             nABRBitrate = cfg->avg_bitrate;
             break;
         }
-    default:{          /*vbr modes */
+        default: {          /*vbr modes */
             nABRBitrate = bitrate_table[cfg->version][cfg->vbr_min_bitrate_index];;
         }
     }
@@ -703,7 +677,7 @@ PutLameVBR(lame_global_flags const *gfp, size_t nMusicLength, uint8_t * pbtStrea
 
     /* ReplayGain */
     if (cfg->findReplayGain) {
-        int     RadioGain = gfc->ov_rpg.RadioGain;
+        int RadioGain = gfc->ov_rpg.RadioGain;
         if (RadioGain > 0x1FE)
             RadioGain = 0x1FE;
         if (RadioGain < -0x1FE)
@@ -723,7 +697,7 @@ PutLameVBR(lame_global_flags const *gfp, size_t nMusicLength, uint8_t * pbtStrea
     /* peak sample */
     if (cfg->findPeakSample)
         nPeakSignalAmplitude =
-            abs((int) ((((FLOAT) gfc->ov_rpg.PeakSample) / 32767.0) * pow(2, 23) + .5));
+                abs((int) ((((FLOAT) gfc->ov_rpg.PeakSample) / 32767.0) * pow(2, 23) + .5));
 
     /*nogap */
     if (nNoGapCount != -1) {
@@ -737,9 +711,9 @@ PutLameVBR(lame_global_flags const *gfp, size_t nMusicLength, uint8_t * pbtStrea
     /*flags */
 
     nFlags = nAthType + (bExpNPsyTune << 4)
-        + (bSafeJoint << 5)
-        + (bNoGapMore << 6)
-        + (bNoGapPrevious << 7);
+             + (bSafeJoint << 5)
+             + (bNoGapMore << 6)
+             + (bNoGapPrevious << 7);
 
 
     if (nQuality < 0)
@@ -748,26 +722,26 @@ PutLameVBR(lame_global_flags const *gfp, size_t nMusicLength, uint8_t * pbtStrea
     /*stereo mode field... a bit ugly. */
 
     switch (cfg->mode) {
-    case MONO:
-        nStereoMode = 0;
-        break;
-    case STEREO:
-        nStereoMode = 1;
-        break;
-    case DUAL_CHANNEL:
-        nStereoMode = 2;
-        break;
-    case JOINT_STEREO:
-        if (cfg->force_ms)
-            nStereoMode = 4;
-        else
-            nStereoMode = 3;
-        break;
-    case NOT_SET:
-        /* FALLTHROUGH */
-    default:
-        nStereoMode = 7;
-        break;
+        case MONO:
+            nStereoMode = 0;
+            break;
+        case STEREO:
+            nStereoMode = 1;
+            break;
+        case DUAL_CHANNEL:
+            nStereoMode = 2;
+            break;
+        case JOINT_STEREO:
+            if (cfg->force_ms)
+                nStereoMode = 4;
+            else
+                nStereoMode = 3;
+            break;
+        case NOT_SET:
+            /* FALLTHROUGH */
+        default:
+            nStereoMode = 7;
+            break;
     }
 
     /*Intensity stereo : nStereoMode = 6. IS is not implemented */
@@ -784,14 +758,15 @@ PutLameVBR(lame_global_flags const *gfp, size_t nMusicLength, uint8_t * pbtStrea
 
     /*Check if the user overrided the default LAME behaviour with some nasty options */
 
-    if (cfg->short_blocks == short_block_forced || cfg->short_blocks == short_block_dispensed || ((cfg->lowpassfreq == -1) && (cfg->highpassfreq == -1)) || /* "-k" */
+    if (cfg->short_blocks == short_block_forced || cfg->short_blocks == short_block_dispensed ||
+        ((cfg->lowpassfreq == -1) && (cfg->highpassfreq == -1)) || /* "-k" */
         (cfg->disable_reservoir && cfg->avg_bitrate < 320) ||
         cfg->noATH || cfg->ATHonly || (nAthType == 0) || cfg->samplerate_in <= 32000)
         bNonOptimal = 1;
 
     nMisc = nNoiseShaping + (nStereoMode << 2)
-        + (bNonOptimal << 5)
-        + (nSourceFreq << 6);
+            + (bNonOptimal << 5)
+            + (nSourceFreq << 6);
 
 
     nMusicCRC = gfc->nMusicCRC;
@@ -862,10 +837,9 @@ PutLameVBR(lame_global_flags const *gfp, size_t nMusicLength, uint8_t * pbtStrea
 }
 
 static long
-skipId3v2(FILE * fpStream)
-{
-    size_t  nbytes;
-    long    id3v2TagSize;
+skipId3v2(FILE *fpStream) {
+    size_t nbytes;
+    long id3v2TagSize;
     unsigned char id3v2Header[10];
 
     /* seek to the beginning of the stream */
@@ -885,9 +859,8 @@ skipId3v2(FILE * fpStream)
                         | ((id3v2Header[7] & 0x7f) << 14)
                         | ((id3v2Header[8] & 0x7f) << 7)
                         | (id3v2Header[9] & 0x7f))
-            + sizeof id3v2Header;
-    }
-    else {
+                       + sizeof id3v2Header;
+    } else {
         /* no ID3 version 2 tag in this stream */
         id3v2TagSize = 0;
     }
@@ -895,14 +868,12 @@ skipId3v2(FILE * fpStream)
 }
 
 
-
 size_t
-lame_get_lametag_frame(lame_global_flags const *gfp, unsigned char *buffer, size_t size)
-{
+lame_get_lametag_frame(lame_global_flags const *gfp, unsigned char *buffer, size_t size) {
     lame_internal_flags *gfc;
     SessionConfig_t const *cfg;
     unsigned long stream_size;
-    unsigned int  nStreamIndex;
+    unsigned int nStreamIndex;
     uint8_t btToc[NUMTOCENTRIES];
 
     if (gfp == 0) {
@@ -939,11 +910,10 @@ lame_get_lametag_frame(lame_global_flags const *gfp, unsigned char *buffer, size
     memset(btToc, 0, sizeof(btToc));
 
     if (cfg->free_format) {
-        int     i;
+        int i;
         for (i = 1; i < NUMTOCENTRIES; ++i)
             btToc[i] = 255 * i / 100;
-    }
-    else {
+    } else {
         Xing_seek_table(&gfc->VBR_seek_table, btToc);
     }
 #ifdef DEBUG_VBR_SEEKING_TABLE
@@ -967,8 +937,7 @@ lame_get_lametag_frame(lame_global_flags const *gfp, unsigned char *buffer, size
         buffer[nStreamIndex++] = VBRTag1[2];
         buffer[nStreamIndex++] = VBRTag1[3];
 
-    }
-    else {
+    } else {
         buffer[nStreamIndex++] = VBRTag0[0];
         buffer[nStreamIndex++] = VBRTag0[1];
         buffer[nStreamIndex++] = VBRTag0[2];
@@ -1027,13 +996,12 @@ lame_get_lametag_frame(lame_global_flags const *gfp, unsigned char *buffer, size
  */
 
 int
-PutVbrTag(lame_global_flags const *gfp, FILE * fpStream)
-{
+PutVbrTag(lame_global_flags const *gfp, FILE *fpStream) {
     lame_internal_flags *gfc = gfp->internal_flags;
 
-    long    lFileSize;
-    long    id3v2TagSize;
-    size_t  nbytes;
+    long lFileSize;
+    long id3v2TagSize;
+    size_t nbytes;
     uint8_t buffer[MAXFRAMESIZE];
 
     if (gfc->VBR_seek_table.pos <= 0)
