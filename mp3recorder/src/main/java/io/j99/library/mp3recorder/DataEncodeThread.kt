@@ -17,8 +17,8 @@ import java.util.concurrent.CountDownLatch
 class DataEncodeThread(private val ringBuffer: RingBuffer, private val os: OutputStream,
                        private val bufferSize: Int) : Thread(), AudioRecord.OnRecordPositionUpdateListener {
     private var handler: StopHandler? = null
-    private val buffer: ByteArray
-    private val mp3Buffer: ByteArray
+    private val buffer: ByteArray = ByteArray(bufferSize)
+    private val mp3Buffer: ByteArray = ByteArray((7200 + buffer.size * 2 * 1.25).toInt())
     private val handlerInitLatch = CountDownLatch(1)
 
     /**
@@ -26,7 +26,7 @@ class DataEncodeThread(private val ringBuffer: RingBuffer, private val os: Outpu
      * @see https://groups.google.com/forum/?fromgroups=.!msg/android-developers/1aPZXZG6kWk/lIYDavGYn5UJ
      */
     internal class StopHandler(encodeThread: DataEncodeThread) : Handler() {
-        var encodeThread: WeakReference<DataEncodeThread>
+        var encodeThread: WeakReference<DataEncodeThread> = WeakReference(encodeThread)
         override fun handleMessage(msg: Message) {
             if (msg.what == PROCESS_STOP) {
                 val threadRef = encodeThread.get()
@@ -41,9 +41,6 @@ class DataEncodeThread(private val ringBuffer: RingBuffer, private val os: Outpu
             super.handleMessage(msg)
         }
 
-        init {
-            this.encodeThread = WeakReference(encodeThread)
-        }
     }
 
     override fun run() {
@@ -122,15 +119,4 @@ class DataEncodeThread(private val ringBuffer: RingBuffer, private val os: Outpu
         const val PROCESS_STOP = 1
     }
 
-    /**
-     * Constructor
-     *
-     * @param ringBuffer ringBuffer
-     * @param os         FileOutputStream
-     * @param bufferSize bufferSize
-     */
-    init {
-        buffer = ByteArray(bufferSize)
-        mp3Buffer = ByteArray((7200 + buffer.size * 2 * 1.25).toInt())
-    }
 }

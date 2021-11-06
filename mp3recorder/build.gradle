@@ -1,10 +1,10 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'maven-publish'
-group = 'io.j99.library.mp3recorder'
+
 android {
-    compileSdkVersion 30
-    buildToolsVersion '30.0.3'
+    compileSdkVersion 31
+    buildToolsVersion '31.0.0'
     ndkVersion '22.1.7171670'
     lintOptions {
         abortOnError false
@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 29
+        targetSdkVersion 31
         versionCode 2
         versionName "1.0.1"
         ndk {
@@ -57,7 +57,9 @@ def getVersionName = { ->
 def getArtificatId = { ->
     return "mp3recorder" // Replace with library name ID
 }
-
+def getGroup = {->
+    return  'com.github.henjue'
+}
 publishing {
     repositories {
         maven {
@@ -71,7 +73,7 @@ publishing {
     }
     publications {
         bar(MavenPublication) {
-            groupId 'com.github.henjue' // Replace with group ID
+            groupId getGroup() // Replace with group ID
             artifactId getArtificatId()
             version getVersionName()
             artifact("$buildDir/outputs/aar/${getArtificatId()}-release.aar")
